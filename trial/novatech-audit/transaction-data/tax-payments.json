@@ -1,0 +1,362 @@
+[
+  {
+    "payment_id": "TX-GST-2025-04",
+    "month": "2025-04",
+    "tax_type": "CGST",
+    "amount": 2417936,
+    "due_date": "2025-05-20",
+    "paid_date": "2025-04-25",
+    "status": "Paid",
+    "gstin": "27AABCN1234F1ZM"
+  },
+  {
+    "payment_id": "TX-SGST-2025-04",
+    "month": "2025-04",
+    "tax_type": "SGST",
+    "amount": 1613468,
+    "due_date": "2025-05-20",
+    "paid_date": "2025-04-25",
+    "status": "Paid",
+    "gstin": "27AABCN1234F1ZM"
+  },
+  {
+    "payment_id": "TX-TDS-2025-04",
+    "month": "2025-04",
+    "tax_type": "TDS",
+    "amount": 507858,
+    "due_date": "2025-05-07",
+    "paid_date": "2025-05-07",
+    "status": "Late",
+    "section": "194J"
+  },
+  {
+    "payment_id": "TX-GST-2025-05",
+    "month": "2025-05",
+    "tax_type": "CGST",
+    "amount": 1286416,
+    "due_date": "2025-06-20",
+    "paid_date": "2025-05-25",
+    "status": "Paid",
+    "gstin": "27AABCN1234F1ZM"
+  },
+  {
+    "payment_id": "TX-SGST-2025-05",
+    "month": "2025-05",
+    "tax_type": "SGST",
+    "amount": 1603513,
+    "due_date": "2025-06-20",
+    "paid_date": "2025-05-25",
+    "status": "Paid",
+    "gstin": "27AABCN1234F1ZM"
+  },
+  {
+    "payment_id": "TX-TDS-2025-05",
+    "month": "2025-05",
+    "tax_type": "TDS",
+    "amount": 635614,
+    "due_date": "2025-06-07",
+    "paid_date": "2025-05-12",
+    "status": "Paid",
+    "section": "194H"
+  },
+  {
+    "payment_id": "TX-GST-2025-06",
+    "month": "2025-06",
+    "tax_type": "CGST",
+    "amount": 2143869,
+    "due_date": "2025-07-20",
+    "paid_date": "2025-06-25",
+    "status": "Paid",
+    "gstin": "27AABCN1234F1ZM"
+  },
+  {
+    "payment_id": "TX-SGST-2025-06",
+    "month": "2025-06",
+    "tax_type": "SGST",
+    "amount": 2490445,
+    "due_date": "2025-07-20",
+    "paid_date": "2025-06-25",
+    "status": "Paid",
+    "gstin": "27AABCN1234F1ZM"
+  },
+  {
+    "payment_id": "TX-TDS-2025-06",
+    "month": "2025-06",
+    "tax_type": "TDS",
+    "amount": 619692,
+    "due_date": "2025-07-07",
+    "paid_date": null,
+    "status": "Overdue",
+    "section": "194C"
+  },
+  {
+    "payment_id": "TX-GST-2025-07",
+    "month": "2025-07",
+    "tax_type": "CGST",
+    "amount": 2226866,
+    "due_date": "2025-08-20",
+    "paid_date": "2025-07-25",
+    "status": "Paid",
+    "gstin": "27AABCN1234F1ZM"
+  },
+  {
+    "payment_id": "TX-SGST-2025-07",
+    "month": "2025-07",
+    "tax_type": "SGST",
+    "amount": 1797706,
+    "due_date": "2025-08-20",
+    "paid_date": "2025-07-25",
+    "status": "Paid",
+    "gstin": "27AABCN1234F1ZM"
+  },
+  {
+    "payment_id": "TX-TDS-2025-07",
+    "month": "2025-07",
+    "tax_type": "TDS",
+    "amount": 646394,
+    "due_date": "2025-08-07",
+    "paid_date": "2025-07-12",
+    "status": "Paid",
+    "section": "194I"
+  },
+  {
+    "payment_id": "TX-GST-2025-08",
+    "month": "2025-08",
+    "tax_type": "CGST",
+    "amount": 1971401,
+    "due_date": "2025-09-20",
+    "paid_date": "2025-08-25",
+    "status": "Paid",
+    "gstin": "27AABCN1234F1ZM"
+  },
+  {
+    "payment_id": "TX-SGST-2025-08",
+    "month": "2025-08",
+    "tax_type": "SGST",
+    "amount": 1329700,
+    "due_date": "2025-09-20",
+    "paid_date": "2025-08-25",
+    "status": "Paid",
+    "gstin": "27AABCN1234F1ZM"
+  },
+  {
+    "payment_id": "TX-TDS-2025-08",
+    "month": "2025-08",
+    "tax_type": "TDS",
+    "amount": 453030,
+    "due_date": "2025-09-07",
+    "paid_date": "2025-08-12",
+    "status": "Paid",
+    "section": "194H"
+  },
+  {
+    "payment_id": "TX-GST-2025-09",
+    "month": "2025-09",
+    "tax_type": "CGST",
+    "amount": 1272675,
+    "due_date": "2025-10-20",
+    "paid_date": null,
+    "status": "Overdue",
+    "gstin": "27AABCN1234F1ZM"
+  },
+  {
+    "payment_id": "TX-SGST-2025-09",
+    "month": "2025-09",
+    "tax_type": "SGST",
+    "amount": 1586790,
+    "due_date": "2025-10-20",
+    "paid_date": "2025-09-25",
+    "status": "Paid",
+    "gstin": "27AABCN1234F1ZM"
+  },
+  {
+    "payment_id": "TX-TDS-2025-09",
+    "month": "2025-09",
+    "tax_type": "TDS",
+    "amount": 553914,
+    "due_date": "2025-10-07",
+    "paid_date": "2025-09-12",
+    "status": "Paid",
+    "section": "194J"
+  },
+  {
+    "payment_id": "TX-GST-2025-10",
+    "month": "2025-10",
+    "tax_type": "CGST",
+    "amount": 1358613,
+    "due_date": "2025-11-20",
+    "paid_date": "2025-10-25",
+    "status": "Paid",
+    "gstin": "27AABCN1234F1ZM"
+  },
+  {
+    "payment_id": "TX-SGST-2025-10",
+    "month": "2025-10",
+    "tax_type": "SGST",
+    "amount": 1532884,
+    "due_date": "2025-11-20",
+    "paid_date": "2025-10-25",
+    "status": "Paid",
+    "gstin": "27AABCN1234F1ZM"
+  },
+  {
+    "payment_id": "TX-TDS-2025-10",
+    "month": "2025-10",
+    "tax_type": "TDS",
+    "amount": 505601,
+    "due_date": "2025-11-07",
+    "paid_date": "2025-10-12",
+    "status": "Paid",
+    "section": "194J"
+  },
+  {
+    "payment_id": "TX-GST-2025-11",
+    "month": "2025-11",
+    "tax_type": "CGST",
+    "amount": 1263895,
+    "due_date": "2025-12-20",
+    "paid_date": "2025-11-25",
+    "status": "Paid",
+    "gstin": "27AABCN1234F1ZM"
+  },
+  {
+    "payment_id": "TX-SGST-2025-11",
+    "month": "2025-11",
+    "tax_type": "SGST",
+    "amount": 1752481,
+    "due_date": "2025-12-20",
+    "paid_date": "2025-11-25",
+    "status": "Paid",
+    "gstin": "27AABCN1234F1ZM"
+  },
+  {
+    "payment_id": "TX-TDS-2025-11",
+    "month": "2025-11",
+    "tax_type": "TDS",
+    "amount": 531373,
+    "due_date": "2025-12-07",
+    "paid_date": "2025-11-12",
+    "status": "Delayed",
+    "section": "194H"
+  },
+  {
+    "payment_id": "TX-GST-2025-12",
+    "month": "2025-12",
+    "tax_type": "CGST",
+    "amount": 2431002,
+    "due_date": "2026-01-20",
+    "paid_date": "2025-12-25",
+    "status": "Paid",
+    "gstin": "27AABCN1234F1ZM"
+  },
+  {
+    "payment_id": "TX-SGST-2025-12",
+    "month": "2025-12",
+    "tax_type": "SGST",
+    "amount": 1898323,
+    "due_date": "2026-01-20",
+    "paid_date": null,
+    "status": "Overdue",
+    "gstin": "27AABCN1234F1ZM"
+  },
+  {
+    "payment_id": "TX-TDS-2025-12",
+    "month": "2025-12",
+    "tax_type": "TDS",
+    "amount": 706215,
+    "due_date": "2026-01-07",
+    "paid_date": "2025-12-12",
+    "status": "Paid",
+    "section": "194J"
+  },
+  {
+    "payment_id": "TX-GST-2026-01",
+    "month": "2026-01",
+    "tax_type": "CGST",
+    "amount": 2170185,
+    "due_date": "2026-02-20",
+    "paid_date": "2026-01-25",
+    "status": "Paid",
+    "gstin": "27AABCN1234F1ZM"
+  },
+  {
+    "payment_id": "TX-SGST-2026-01",
+    "month": "2026-01",
+    "tax_type": "SGST",
+    "amount": 1616699,
+    "due_date": "2026-02-20",
+    "paid_date": "2026-01-25",
+    "status": "Paid",
+    "gstin": "27AABCN1234F1ZM"
+  },
+  {
+    "payment_id": "TX-TDS-2026-01",
+    "month": "2026-01",
+    "tax_type": "TDS",
+    "amount": 719736,
+    "due_date": "2026-02-07",
+    "paid_date": "2026-01-12",
+    "status": "Paid",
+    "section": "194C"
+  },
+  {
+    "payment_id": "TX-GST-2026-02",
+    "month": "2026-02",
+    "tax_type": "CGST",
+    "amount": 1571433,
+    "due_date": "2026-03-20",
+    "paid_date": "2026-02-25",
+    "status": "Paid",
+    "gstin": "27AABCN1234F1ZM"
+  },
+  {
+    "payment_id": "TX-SGST-2026-02",
+    "month": "2026-02",
+    "tax_type": "SGST",
+    "amount": 1384088,
+    "due_date": "2026-03-20",
+    "paid_date": "2026-02-25",
+    "status": "Paid",
+    "gstin": "27AABCN1234F1ZM"
+  },
+  {
+    "payment_id": "TX-TDS-2026-02",
+    "month": "2026-02",
+    "tax_type": "TDS",
+    "amount": 658244,
+    "due_date": "2026-03-07",
+    "paid_date": "2026-02-12",
+    "status": "Paid",
+    "section": "194I"
+  },
+  {
+    "payment_id": "TX-GST-2026-03",
+    "month": "2026-03",
+    "tax_type": "CGST",
+    "amount": 2219582,
+    "due_date": "2026-04-20",
+    "paid_date": "2026-03-25",
+    "status": "Paid",
+    "gstin": "27AABCN1234F1ZM"
+  },
+  {
+    "payment_id": "TX-SGST-2026-03",
+    "month": "2026-03",
+    "tax_type": "SGST",
+    "amount": 1737977,
+    "due_date": "2026-04-20",
+    "paid_date": "2026-03-25",
+    "status": "Paid",
+    "gstin": "27AABCN1234F1ZM"
+  },
+  {
+    "payment_id": "TX-TDS-2026-03",
+    "month": "2026-03",
+    "tax_type": "TDS",
+    "amount": 769248,
+    "due_date": "2026-04-07",
+    "paid_date": "2026-03-12",
+    "status": "Paid",
+    "section": "194C"
+  }
+]

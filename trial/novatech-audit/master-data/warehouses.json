@@ -1,0 +1,10 @@
+[
+  {"warehouse_id": "WH-01", "name": "Pune Central", "city": "Pune", "state": "Maharashtra", "capacity_sqft": 25000, "manager_id": "EMP-042", "total_stock_value": 18500000, "status": "Active"},
+  {"warehouse_id": "WH-02", "name": "Mumbai Hub", "city": "Mumbai", "state": "Maharashtra", "capacity_sqft": 35000, "manager_id": "EMP-055", "total_stock_value": 22000000, "status": "Active"},
+  {"warehouse_id": "WH-03", "name": "Nagpur Depot", "city": "Nagpur", "state": "Maharashtra", "capacity_sqft": 15000, "manager_id": "EMP-067", "total_stock_value": 8500000, "status": "Active"},
+  {"warehouse_id": "WH-04", "name": "Hyderabad South", "city": "Hyderabad", "state": "Telangana", "capacity_sqft": 20000, "manager_id": "EMP-078", "total_stock_value": 14000000, "status": "Active"},
+  {"warehouse_id": "WH-05", "name": "Bangalore Depot", "city": "Bangalore", "state": "Karnataka", "capacity_sqft": 18000, "manager_id": "EMP-085", "total_stock_value": 12000000, "status": "Active"},
+  {"warehouse_id": "PLT-01-ST", "name": "Plant 1 Store", "city": "Pune", "state": "Maharashtra", "capacity_sqft": 12000, "manager_id": "EMP-042", "total_stock_value": 35000000, "status": "Active"},
+  {"warehouse_id": "PLT-02-ST", "name": "Plant 2 Store", "city": "Nashik", "state": "Maharashtra", "capacity_sqft": 10000, "manager_id": "EMP-067", "total_stock_value": 28000000, "status": "Active"},
+  {"warehouse_id": "PLT-03-ST", "name": "Plant 3 Store", "city": "Aurangabad", "state": "Maharashtra", "capacity_sqft": 8000, "manager_id": "EMP-078", "total_stock_value": 22000000, "status": "Active"}
+]

@@ -1,0 +1,16 @@
+[
+  {"dept_code": "EXEC", "department": "Executive / Board", "budget_code": "BD-001", "annual_budget": 8500000, "location": "HQ-PUNE", "head_count": 5},
+  {"dept_code": "FIN", "department": "Finance & Accounts", "budget_code": "BD-002", "annual_budget": 12000000, "location": "HQ-PUNE", "head_count": 28},
+  {"dept_code": "HR", "department": "Human Resources", "budget_code": "BD-003", "annual_budget": 6500000, "location": "HQ-PUNE", "head_count": 15},
+  {"dept_code": "IT", "department": "Information Technology", "budget_code": "BD-004", "annual_budget": 18000000, "location": "HQ-PUNE", "head_count": 12},
+  {"dept_code": "PROC", "department": "Procurement & Stores", "budget_code": "BD-005", "annual_budget": 9000000, "location": "HQ-PUNE", "head_count": 22},
+  {"dept_code": "SALES", "department": "Sales & Business Dev", "budget_code": "BD-006", "annual_budget": 15000000, "location": "HQ-PUNE", "head_count": 35},
+  {"dept_code": "MKT", "department": "Marketing", "budget_code": "BD-007", "annual_budget": 8000000, "location": "HQ-PUNE", "head_count": 10},
+  {"dept_code": "PLT01", "department": "Manufacturing Plant 1", "budget_code": "BD-008", "annual_budget": 45000000, "location": "PLT-01", "head_count": 95},
+  {"dept_code": "PLT02", "department": "Manufacturing Plant 2", "budget_code": "BD-009", "annual_budget": 38000000, "location": "PLT-02", "head_count": 85},
+  {"dept_code": "PLT03", "department": "Manufacturing Plant 3", "budget_code": "BD-010", "annual_budget": 32000000, "location": "PLT-03", "head_count": 72},
+  {"dept_code": "WH", "department": "Warehouse & Logistics", "budget_code": "BD-011", "annual_budget": 14000000, "location": "HQ-PUNE", "head_count": 48},
+  {"dept_code": "QA", "department": "Quality Assurance", "budget_code": "BD-012", "annual_budget": 11000000, "location": "HQ-PUNE", "head_count": 30},
+  {"dept_code": "RND", "department": "Research & Development", "budget_code": "BD-013", "annual_budget": 22000000, "location": "HQ-PUNE", "head_count": 18},
+  {"dept_code": "ADM", "department": "Administration", "budget_code": "BD-014", "annual_budget": 5500000, "location": "HQ-PUNE", "head_count": 12}
+]

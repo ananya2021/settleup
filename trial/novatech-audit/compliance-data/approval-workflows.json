@@ -1,0 +1,207 @@
+{
+  "approval_limits": [
+    {
+      "role": "Operator/Assistant",
+      "approval_limit": 25000,
+      "areas": [
+        "Store Issue",
+        " Petty Cash"
+      ]
+    },
+    {
+      "role": "Supervisor",
+      "approval_limit": 50000,
+      "areas": [
+        "Store Issue",
+        "Petty Cash",
+        "Travel Advance"
+      ]
+    },
+    {
+      "role": "Manager",
+      "approval_limit": 100000,
+      "areas": [
+        "Purchase Order",
+        "Expense",
+        "Travel",
+        "Leave"
+      ]
+    },
+    {
+      "role": "Senior Manager",
+      "approval_limit": 200000,
+      "areas": [
+        "Purchase Order",
+        "Expense",
+        "Travel",
+        "Sales Discount"
+      ]
+    },
+    {
+      "role": "GM/Director",
+      "approval_limit": 500000,
+      "areas": [
+        "Purchase Order",
+        "Expense",
+        "Capital Expenditure",
+        "Sales Discount"
+      ]
+    },
+    {
+      "role": "VP/CFO",
+      "approval_limit": 2000000,
+      "areas": [
+        "Purchase Order",
+        "Capital Expenditure",
+        "Vendor Onboarding",
+        "Sales Discount >15%"
+      ]
+    },
+    {
+      "role": "MD/CEO",
+      "approval_limit": 10000000,
+      "areas": [
+        "All areas",
+        "Board Resolution items"
+      ]
+    }
+  ],
+  "segregation_of_duties": [
+    {
+      "rule": "SOD-01",
+      "description": "Person raising PO cannot approve it",
+      "violations": [
+        "EMP-045 raised and self-approved PO-2025-0043",
+        "EMP-045 raised and self-approved PO-2025-0056"
+      ]
+    },
+    {
+      "rule": "SOD-02",
+      "description": "Person making payment cannot reconcile bank",
+      "violations": []
+    },
+    {
+      "rule": "SOD-03",
+      "description": "Person processing payroll cannot approve own salary",
+      "violations": []
+    },
+    {
+      "rule": "SOD-04",
+      "description": "Sales person cannot approve discount above 15%",
+      "violations": [
+        "EMP-035 approved 36.2% discount on SO-2025-00013"
+      ]
+    },
+    {
+      "rule": "SOD-05",
+      "description": "Warehouse keeper cannot approve stock write-off",
+      "violations": [
+        "EMP-042 approved damaged inventory write-off without QA"
+      ]
+    },
+    {
+      "rule": "SOD-06",
+      "description": "Procurement cannot receive goods at warehouse",
+      "violations": []
+    },
+    {
+      "rule": "SOD-07",
+      "description": "IT admin cannot have finance module access",
+      "violations": [
+        "EMP-004 (IT Head) has Finance Admin role in SAP"
+      ]
+    }
+  ],
+  "control_tests": [
+    {
+      "control_id": "CTRL-01",
+      "area": "Procurement",
+      "description": "PO above \u20b91L requires dual approval",
+      "test_result": "Fail",
+      "exceptions": 4,
+      "sample_size": 30,
+      "effectiveness": "Ineffective"
+    },
+    {
+      "control_id": "CTRL-02",
+      "area": "Procurement",
+      "description": "Three-way match before invoice payment",
+      "test_result": "Fail",
+      "exceptions": 8,
+      "sample_size": 50,
+      "effectiveness": "Ineffective"
+    },
+    {
+      "control_id": "CTRL-03",
+      "area": "Sales",
+      "description": "Discount above 15% requires VP approval",
+      "test_result": "Fail",
+      "exceptions": 12,
+      "sample_size": 40,
+      "effectiveness": "Ineffective"
+    },
+    {
+      "control_id": "CTRL-04",
+      "area": "Finance",
+      "description": "Bank reconciliation within 3 days",
+      "test_result": "Pass",
+      "exceptions": 2,
+      "sample_size": 20,
+      "effectiveness": "Partially Effective"
+    },
+    {
+      "control_id": "CTRL-05",
+      "area": "HR",
+      "description": "Exit clearance within 24 hours of leaving",
+      "test_result": "Fail",
+      "exceptions": 7,
+      "sample_size": 12,
+      "effectiveness": "Ineffective"
+    },
+    {
+      "control_id": "CTRL-06",
+      "area": "IT",
+      "description": "Access revoked within 48 hours of termination",
+      "test_result": "Fail",
+      "exceptions": 7,
+      "sample_size": 7,
+      "effectiveness": "Ineffective"
+    },
+    {
+      "control_id": "CTRL-07",
+      "area": "Inventory",
+      "description": "Monthly physical count reconciliation",
+      "test_result": "Fail",
+      "exceptions": 3,
+      "sample_size": 12,
+      "effectiveness": "Partially Effective"
+    },
+    {
+      "control_id": "CTRL-08",
+      "area": "Finance",
+      "description": "Expense claims with supporting documents",
+      "test_result": "Fail",
+      "exceptions": 15,
+      "sample_size": 50,
+      "effectiveness": "Partially Effective"
+    },
+    {
+      "control_id": "CTRL-09",
+      "area": "Procurement",
+      "description": "Vendor onboarding with due diligence",
+      "test_result": "Partial",
+      "exceptions": 2,
+      "sample_size": 10,
+      "effectiveness": "Partially Effective"
+    },
+    {
+      "control_id": "CTRL-10",
+      "area": "Finance",
+      "description": "Tax payments made before due date",
+      "test_result": "Fail",
+      "exceptions": 4,
+      "sample_size": 36,
+      "effectiveness": "Ineffective"
+    }
+  ]
+}

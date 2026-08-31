@@ -1,0 +1,405 @@
+{
+  "analysis_info": {
+    "analysis_id": "AD-2026-001",
+    "analysis_date": "2026-08-15",
+    "analyzer": "Codebuff AI Audit Engine",
+    "data_sources": [
+      "Purchase Orders (100 records)",
+      "Purchase Invoices (150 records)",
+      "Sales Orders (300 records)",
+      "Sales Invoices (300 records)",
+      "Expense Claims (217 records)",
+      "Bank Transactions (50 records)",
+      "Inventory Movements (105 records)",
+      "Payroll Records (1188 records)",
+      "User Access Records (52 records)",
+      "Login Activity (161 records)"
+    ],
+    "total_records_analyzed": 2528,
+    "anomalies_detected": 127,
+    "anomaly_rate": "5.02%"
+  },
+  "anomaly_categories": [
+    {
+      "category": "Duplicate Detection",
+      "description": "Identification of duplicate or near-duplicate transactions",
+      "count": 15,
+      "risk_level": "HIGH",
+      "details": [
+        {
+          "type": "Duplicate Invoices",
+          "count": 5,
+          "total_value": 1450000,
+          "method": "Same vendor + same amount + date within 3 days"
+        },
+        {
+          "type": "Duplicate Expense Claims",
+          "count": 5,
+          "total_value": 87500,
+          "method": "Same employee + same amount + same description"
+        },
+        {
+          "type": "Duplicate Payroll Entries",
+          "count": 1,
+          "total_value": 42300,
+          "method": "Employee ID not in HRMS master"
+        },
+        {
+          "type": "Duplicate Vendor Bank Accounts",
+          "count": 2,
+          "total_value": 0,
+          "method": "Multiple employees sharing same bank account"
+        },
+        {
+          "type": "Round-Number Clustering",
+          "count": 2,
+          "total_value": 8500000,
+          "method": "Statistical analysis of amount distribution"
+        }
+      ]
+    },
+    {
+      "category": "Threshold Bypass",
+      "description": "Transactions structured to circumvent approval limits",
+      "count": 13,
+      "risk_level": "HIGH",
+      "details": [
+        {
+          "type": "PO Splitting",
+          "count": 5,
+          "total_value": 489475,
+          "method": "Multiple POs to same vendor below 1L within 3 weeks"
+        },
+        {
+          "type": "Sales Threshold Gaming",
+          "count": 8,
+          "total_value": 0,
+          "method": "Sales orders between 4.9L-5.0L below VP threshold"
+        }
+      ]
+    },
+    {
+      "category": "Unauthorized Access",
+      "description": "System access violations and segregation of duties breaches",
+      "count": 18,
+      "risk_level": "CRITICAL",
+      "details": [
+        {
+          "type": "Terminated Employee Access",
+          "count": 7,
+          "total_value": 0,
+          "method": "Cross-reference HRMS termination dates with active user accounts"
+        },
+        {
+          "type": "SoD Violations",
+          "count": 4,
+          "total_value": 0,
+          "method": "Conflicting role assignments detected"
+        },
+        {
+          "type": "Missing MFA",
+          "count": 19,
+          "total_value": 0,
+          "method": "User accounts without MFA enforcement"
+        },
+        {
+          "type": "Off-Hours Access",
+          "count": 52,
+          "total_value": 0,
+          "method": "Login timestamps outside 08:00-19:00"
+        }
+      ]
+    },
+    {
+      "category": "Financial Irregularities",
+      "description": "Suspicious financial patterns and control bypasses",
+      "count": 35,
+      "risk_level": "HIGH",
+      "details": [
+        {
+          "type": "Missing Approvals (PO)",
+          "count": 4,
+          "total_value": 1650000,
+          "method": "PO above 2L without approval workflow"
+        },
+        {
+          "type": "Excessive Discounts",
+          "count": 12,
+          "total_value": 620000,
+          "method": "Discount rate above 15% policy maximum"
+        },
+        {
+          "type": "Missing Documentation",
+          "count": 9,
+          "total_value": 1240000,
+          "method": "Invoices without GRN/PO/supporting docs"
+        },
+        {
+          "type": "Missing Credit Notes",
+          "count": 8,
+          "total_value": 1860000,
+          "method": "Sales returns without credit note issuance"
+        },
+        {
+          "type": "Off-Hours Payments",
+          "count": 3,
+          "total_value": 3500000,
+          "method": "Bank payments between 22:00-02:00"
+        },
+        {
+          "type": "PO-less Invoices",
+          "count": 4,
+          "total_value": 1280000,
+          "method": "Invoices processed without PO reference"
+        },
+        {
+          "type": "Three-Way Match Failures",
+          "count": 8,
+          "total_value": 950000,
+          "method": "PO-GRN-Invoice mismatch"
+        }
+      ]
+    },
+    {
+      "category": "Vendor Risk",
+      "description": "Transactions with high-risk or suspicious vendors",
+      "count": 7,
+      "risk_level": "HIGH",
+      "details": [
+        {
+          "type": "Inactive Vendor Payments",
+          "count": 3,
+          "total_value": 3450000,
+          "method": "Payments to V-046 deactivated Apr 2025"
+        },
+        {
+          "type": "Dormant Vendor Transactions",
+          "count": 1,
+          "total_value": 531000,
+          "method": "Transaction with V-047 dormant 12+ months"
+        },
+        {
+          "type": "Low-Rated Vendor Spend",
+          "count": 3,
+          "total_value": 8300000,
+          "method": "High spend to vendors rated below 3.0"
+        }
+      ]
+    },
+    {
+      "category": "Policy Violations",
+      "description": "Violations of company policies and procedures",
+      "count": 22,
+      "risk_level": "MEDIUM",
+      "details": [
+        {
+          "type": "Expense Without Docs",
+          "count": 58,
+          "total_value": 450000,
+          "method": "Claims approved without supporting documentation"
+        },
+        {
+          "type": "Weekend Expense Claims",
+          "count": 6,
+          "total_value": 65000,
+          "method": "Claims on non-working days"
+        },
+        {
+          "type": "Per-Diem Exceedances",
+          "count": 8,
+          "total_value": 280000,
+          "method": "Claims above 5000 event limit"
+        },
+        {
+          "type": "Excessive Employee Expenses",
+          "count": 1,
+          "total_value": 369112,
+          "method": "EMP-035 at 4.3x department average"
+        },
+        {
+          "type": "Backdated Approvals",
+          "count": 3,
+          "total_value": 0,
+          "method": "Approval date before PO creation date"
+        },
+        {
+          "type": "Revenue Recognition Issues",
+          "count": 9,
+          "total_value": 22000000,
+          "method": "Month-end transaction clustering"
+        }
+      ]
+    },
+    {
+      "category": "Inventory Anomalies",
+      "description": "Stock-level irregularities and count discrepancies",
+      "count": 12,
+      "risk_level": "MEDIUM",
+      "details": [
+        {
+          "type": "Negative Inventory",
+          "count": 4,
+          "total_value": 250000,
+          "method": "Stock issues exceeding available quantity"
+        },
+        {
+          "type": "Count Discrepancies",
+          "count": 5,
+          "total_value": 830000,
+          "method": "Physical vs system count variance above 2%"
+        },
+        {
+          "type": "Unauthorized Write-Offs",
+          "count": 3,
+          "total_value": 165000,
+          "method": "Damaged inventory write-off without approval"
+        }
+      ]
+    },
+    {
+      "category": "Tax Compliance",
+      "description": "Tax payment irregularities",
+      "count": 5,
+      "risk_level": "MEDIUM",
+      "details": [
+        {
+          "type": "Late Tax Payments",
+          "count": 4,
+          "total_value": 1550000,
+          "method": "GST/TDS payments after due date"
+        },
+        {
+          "type": "Tax Amount Variance",
+          "count": 1,
+          "total_value": 150000,
+          "method": "GST payment vs GSTR-3B mismatch"
+        }
+      ]
+    }
+  ],
+  "suspicious_entities": {
+    "vendors": [
+      {
+        "vendor_id": "V-046",
+        "name": "Prasad Enterprise",
+        "reason": "Inactive status but 34.5L in payments received during FY26",
+        "risk_score": 22
+      },
+      {
+        "vendor_id": "V-047",
+        "name": "Shree Trading Co",
+        "reason": "Dormant vendor received 5.3L payment after 12+ months of inactivity",
+        "risk_score": 16
+      },
+      {
+        "vendor_id": "V-045",
+        "name": "Bihar Steels and Tubes",
+        "reason": "Low rating 3.2, 22L annual spend, multiple round-number POs",
+        "risk_score": 11
+      }
+    ],
+    "employees": [
+      {
+        "emp_id": "EMP-035",
+        "name": "Senior Manager-Sales",
+        "reason": "3.69L in expense claims 4.3x department average, multiple excessive discounts approved",
+        "risk_score": 14
+      },
+      {
+        "emp_id": "EMP-037",
+        "name": "Omkar More Terminated",
+        "reason": "Processed 3 invoices post-termination with active Tally access",
+        "risk_score": 22
+      },
+      {
+        "emp_id": "EMP-045",
+        "name": "Vaishali Patil Terminated",
+        "reason": "Self-approved POs, retained SAP Admin access, SoD violation",
+        "risk_score": 20
+      }
+    ],
+    "customers": [
+      {
+        "cust_id": "CUST-0016",
+        "name": "Reliance Industries",
+        "reason": "1.85Cr outstanding receivable with C credit rating",
+        "risk_score": 10
+      },
+      {
+        "cust_id": "CUST-0023",
+        "name": "Lupin",
+        "reason": "1.2Cr outstanding with C- credit rating",
+        "risk_score": 9
+      }
+    ]
+  },
+  "trend_analysis": {
+    "monthly_suspicious_transactions": {
+      "Apr 2025": 2,
+      "May 2025": 3,
+      "Jun 2025": 8,
+      "Jul 2025": 3,
+      "Aug 2025": 5,
+      "Sep 2025": 12,
+      "Oct 2025": 6,
+      "Nov 2025": 5,
+      "Dec 2025": 15,
+      "Jan 2026": 8,
+      "Feb 2026": 4,
+      "Mar 2026": 6
+    },
+    "observation": "Significant spike in suspicious transactions during quarter-end months Jun Sep Dec correlating with revenue target pressure."
+  },
+  "fraud_indicators": [
+    {
+      "indicator": "Ghost Employee",
+      "description": "Payroll entry for non-existent employee EMP-105",
+      "fraud_triangle": "Opportunity: Manual payroll entry possible; Pressure: Unknown; Rationalization: Undetected",
+      "risk_score": 22,
+      "linked_findings": [
+        "AF-016"
+      ]
+    },
+    {
+      "indicator": "Inactive Vendor Payments",
+      "description": "Systematic payments to deactivated vendor over 11 months",
+      "fraud_triangle": "Opportunity: No system block; Pressure: None apparent; Rationalization: Routine processing",
+      "risk_score": 20,
+      "linked_findings": [
+        "AF-001",
+        "AF-037"
+      ]
+    },
+    {
+      "indicator": "Round-Number Transaction Clustering",
+      "description": "Multiple POs and bank payments with suspiciously round amounts",
+      "fraud_triangle": "Opportunity: Manual entry; Pressure: Financial; Rationalization: Convenience",
+      "risk_score": 15,
+      "linked_findings": [
+        "AF-013",
+        "AF-032",
+        "AF-040"
+      ]
+    },
+    {
+      "indicator": "Post-Termination System Access",
+      "description": "Terminated employees continued to process financial transactions",
+      "fraud_triangle": "Opportunity: Access not revoked; Pressure: Unknown; Rationalization: Familiarity with system",
+      "risk_score": 22,
+      "linked_findings": [
+        "AF-002",
+        "AF-037"
+      ]
+    },
+    {
+      "indicator": "Excessive Expense Claims",
+      "description": "Single employee claiming 4.3x average with inadequate documentation",
+      "fraud_triangle": "Opportunity: Weak approval process; Pressure: Lifestyle; Rationalization: Everyone does it",
+      "risk_score": 14,
+      "linked_findings": [
+        "AF-007",
+        "AF-008"
+      ]
+    }
+  ]
+}
