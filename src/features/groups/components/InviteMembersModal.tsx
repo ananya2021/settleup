@@ -1,5 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useCreateGroupInvitation } from '../hooks/useInvitations';
+import { Sheet } from '@/ui/primitives/Sheet';
+import { Button } from '@/ui/primitives/Button';
 
 interface InviteMembersModalProps {
   groupId: string;
@@ -7,23 +9,13 @@ interface InviteMembersModalProps {
   onClose: () => void;
 }
 
-/**
- * Modal for generating and sharing an invitation link.
- * Only visible to admins.
- */
-export function InviteMembersModal({
-  groupId,
-  groupName,
-  onClose,
-}: InviteMembersModalProps) {
+export function InviteMembersModal({ groupId, groupName, onClose }: InviteMembersModalProps) {
   const [token, setToken] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState('');
   const createInvitation = useCreateGroupInvitation();
 
-  const invitationUrl = token
-    ? `${window.location.origin}/invite/${token}`
-    : '';
+  const invitationUrl = token ? `${window.location.origin}/invite/${token}` : '';
 
   const handleGenerate = useCallback(async () => {
     setError('');
@@ -31,11 +23,7 @@ export function InviteMembersModal({
       const result = await createInvitation.mutateAsync({ groupId });
       setToken(result.token);
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : 'Failed to generate invitation'
-      );
+      setError(err instanceof Error ? err.message : 'Failed to generate invitation link');
     }
   }, [groupId, createInvitation]);
 
@@ -46,7 +34,6 @@ export function InviteMembersModal({
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      // Fallback: select text
       const textArea = document.createElement('textarea');
       textArea.value = invitationUrl;
       document.body.appendChild(textArea);
@@ -58,118 +45,134 @@ export function InviteMembersModal({
     }
   }, [invitationUrl]);
 
-  return (
-    <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        {/* Header */}
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="text-lg font-semibold text-text-primary">
-            Invite Friends
-          </h3>
-          <button
-            onClick={onClose}
-            className="w-8 h-8 rounded-full bg-surface flex items-center justify-center text-text-secondary hover:text-text-primary transition-colors"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
-          </button>
-        </div>
-        <p className="text-sm text-text-secondary mb-5">
-          Generate a secure link to invite others to {groupName}
-        </p>
+  const handleNativeShare = useCallback(async () => {
+    if (!invitationUrl) return;
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `Join ${groupName} on SplitPay`,
+          text: `Hey! Join my group "${groupName}" on SplitPay to easily split expenses:`,
+          url: invitationUrl,
+        });
+      } catch (err) {
+        // Fallback to copy if user cancelled or dismissed
+        console.log('Share dismissed:', err);
+      }
+    } else {
+      handleCopy();
+    }
+  }, [invitationUrl, groupName, handleCopy]);
 
+  return (
+    <Sheet
+      isOpen={true}
+      onClose={onClose}
+      title="Invite Friends"
+      subtitle={`Anyone with this secure link can join ${groupName}`}
+    >
+      <div className="space-y-5">
         {!token ? (
-          <button
-            onClick={handleGenerate}
-            disabled={createInvitation.isPending}
-            className="btn-primary w-full mb-4"
-          >
-            {createInvitation.isPending ? (
-              <span className="flex items-center justify-center gap-2">
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                Generating...
-              </span>
-            ) : (
-              <span className="flex items-center justify-center gap-2">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                  <polyline points="22,6 12,13 2,6" />
-                </svg>
-                Generate Invite Link
-              </span>
-            )}
-          </button>
-        ) : (
-          <div className="mb-4">
-            {/* Generated link display */}
-            <div className="p-4 bg-surface rounded-xl mb-3">
-              <p className="text-xs text-text-secondary mb-2 uppercase tracking-wider font-medium">
-                Invitation Link
+          <div className="p-6 rounded-2xl bg-[var(--color-surface-sunken)] border border-[var(--color-border-light)] text-center space-y-4">
+            <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto text-2xl bg-[var(--color-surface-raised)] border border-[var(--color-border)] shadow-sm">
+              🔗
+            </div>
+            <div>
+              <p className="font-semibold text-sm text-[var(--color-text-primary)]">
+                Generate a 7-day Invite Link
               </p>
+              <p className="text-xs text-[var(--color-text-secondary)] mt-1">
+                Share with friends via WhatsApp, iMessage, Telegram, or email.
+              </p>
+            </div>
+            <Button
+              variant="primary"
+              fullWidth
+              size="md"
+              onClick={handleGenerate}
+              loading={createInvitation.isPending}
+            >
+              Generate Invite Link
+            </Button>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <div className="p-4 rounded-2xl bg-[var(--color-surface-sunken)] border border-[var(--color-border-light)] space-y-2">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--color-text-secondary)]">
+                Invite Link
+              </span>
               <div className="flex items-center gap-2">
                 <input
                   readOnly
                   value={invitationUrl}
-                  className="flex-1 px-3 py-2.5 bg-white border border-border rounded-lg text-sm text-text-primary truncate"
+                  className="flex-1 px-3.5 py-2.5 rounded-xl text-xs font-mono bg-[var(--color-surface-raised)] border border-[var(--color-border)] text-[var(--color-text-primary)] truncate outline-none select-all"
                 />
-                <button
-                  onClick={handleCopy}
-                  className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-all flex items-center gap-1.5 ${
-                    copied
-                      ? 'bg-success/10 text-success'
-                      : 'bg-primary text-white hover:bg-primary-dark'
-                  }`}
-                >
-                  {copied ? (
-                    <>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                      Copied!
-                    </>
-                  ) : (
-                    <>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                      </svg>
-                      Copy
-                    </>
-                  )}
-                </button>
               </div>
-              <p className="text-xs text-text-tertiary mt-2">
-                Expires in 7 days
+              <p className="text-[11px] text-[var(--color-text-tertiary)] flex items-center gap-1">
+                <span>⏳</span> Link valid for 7 days
               </p>
             </div>
 
-            <button
-              onClick={handleGenerate}
-              disabled={createInvitation.isPending}
-              className="text-sm font-medium text-primary hover:text-primary-dark transition-colors"
-            >
-              {createInvitation.isPending ? 'Generating...' : 'Generate New Link'}
-            </button>
+            <div className="grid grid-cols-2 gap-3">
+              <Button
+                variant="secondary"
+                size="md"
+                onClick={handleCopy}
+                icon={
+                  copied ? (
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  ) : (
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                    </svg>
+                  )
+                }
+              >
+                {copied ? 'Copied!' : 'Copy Link'}
+              </Button>
+
+              <Button
+                variant="primary"
+                size="md"
+                onClick={handleNativeShare}
+                icon={
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="18" cy="5" r="3" />
+                    <circle cx="6" cy="12" r="3" />
+                    <circle cx="18" cy="19" r="3" />
+                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+                    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+                  </svg>
+                }
+              >
+                Share Link
+              </Button>
+            </div>
+
+            <div className="pt-2 text-center">
+              <button
+                onClick={handleGenerate}
+                disabled={createInvitation.isPending}
+                className="text-xs font-semibold text-[var(--color-accent)] hover:underline pressable"
+              >
+                Generate a fresh link
+              </button>
+            </div>
           </div>
         )}
 
-        {/* Error */}
         {error && (
-          <div className="mb-4 px-4 py-3 rounded-xl bg-error/10 text-error text-sm">
+          <div className="p-3.5 rounded-2xl text-xs font-semibold bg-[var(--color-owe-light)] text-[var(--color-owe)]">
             {error}
           </div>
         )}
 
-        {/* Close */}
-        <button
-          onClick={onClose}
-          className="btn-secondary w-full mt-2"
-        >
+        <Button variant="ghost" fullWidth onClick={onClose}>
           Done
-        </button>
+        </Button>
       </div>
-    </div>
+    </Sheet>
   );
 }

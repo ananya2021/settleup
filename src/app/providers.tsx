@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider, useAuth } from '@/features/auth/hooks/useAuth';
 import { useRealtimeSubscriptions } from '@/lib/realtime';
+import { ThemeProvider } from '@/ui/theme/ThemeContext';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -19,12 +20,14 @@ function RealtimeProvider({ children }: { children: React.ReactNode }) {
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <RealtimeProvider>
-          {children}
-        </RealtimeProvider>
-      </AuthProvider>
-    </QueryClientProvider>
+    <ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <RealtimeProvider>
+            {children}
+          </RealtimeProvider>
+        </AuthProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
   );
 }

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useCancelObligation } from '@/features/expenses/hooks/useExpenses';
+import { Button } from '@/ui/primitives/Button';
 
 interface Props {
   obligationId: string;
@@ -20,42 +21,38 @@ export function CancelButton({ obligationId, isCreditor, settledAmount, onSucces
       setShowConfirm(false);
       onSuccess?.();
     } catch {
-      // Error handled by mutation
+      // Handled by mutation
     }
   };
 
   if (showConfirm) {
     return (
-      <div className="p-3 bg-surface rounded-xl space-y-2">
-        <p className="text-sm text-text-secondary">
+      <div className="p-3.5 rounded-2xl space-y-2 bg-[var(--color-surface-sunken)] border border-[var(--color-border-light)]">
+        <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed">
           {settledAmount > 0
-            ? `Cancel this obligation? ₹${settledAmount} already settled will become a new debt owed back to you.`
-            : 'Cancel this obligation? This cannot be undone.'}
+            ? `Cancel this debt? ₹${settledAmount} already settled will become a new debt owed back to you.`
+            : 'Cancel this debt? This cannot be undone.'}
         </p>
         <div className="flex gap-2">
-          <button
+          <Button
+            variant="destructive"
+            size="sm"
             onClick={handleCancel}
             disabled={cancel.isPending}
-            className="px-4 py-2 bg-error text-white rounded-lg text-sm font-medium hover:bg-error/90 disabled:opacity-50 transition-colors"
+            loading={cancel.isPending}
           >
-            {cancel.isPending ? (
-              <span className="flex items-center gap-1.5">
-                <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                Cancelling...
-              </span>
-            ) : (
-              'Confirm Cancel'
-            )}
-          </button>
-          <button
+            Confirm Cancel
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => setShowConfirm(false)}
-            className="px-4 py-2 text-text-secondary rounded-lg text-sm font-medium hover:bg-border/50 transition-colors"
           >
             Keep
-          </button>
+          </Button>
         </div>
         {cancel.isError && (
-          <p className="text-xs text-error">{cancel.error.message}</p>
+          <p className="text-xs text-[var(--color-owe)]">{cancel.error.message}</p>
         )}
       </div>
     );
@@ -64,7 +61,7 @@ export function CancelButton({ obligationId, isCreditor, settledAmount, onSucces
   return (
     <button
       onClick={() => setShowConfirm(true)}
-      className="text-sm font-medium text-error hover:text-error/80 transition-colors"
+      className="text-xs font-semibold text-[var(--color-owe)] hover:underline pressable"
     >
       Cancel
     </button>

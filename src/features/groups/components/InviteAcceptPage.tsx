@@ -1,143 +1,141 @@
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/features/auth/hooks/useAuth';
-import {
-  useInvitationDetails,
-  useAcceptGroupInvitation,
-} from '../hooks/useInvitations';
+import { useInvitationDetails, useAcceptGroupInvitation } from '../hooks/useInvitations';
+import { GroupAvatar } from '@/ui/primitives/GroupAvatar';
+import { Card } from '@/ui/primitives/Card';
+import { Button } from '@/ui/primitives/Button';
+import { Skeleton } from '@/ui/primitives/Skeleton';
 
-/**
- * Invitation acceptance page.
- * Route: /invite/:token
- *
- * Shows invitation details and allows the user to accept.
- * Handles unauthenticated users by prompting sign-in.
- */
 export function InviteAcceptPage() {
   const { token } = useParams<{ token: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
-
-  const { data: details, isLoading, error: fetchError } =
-    useInvitationDetails(token ?? '');
-
+  const { data: details, isLoading, error: fetchError } = useInvitationDetails(token ?? '');
   const acceptInvitation = useAcceptGroupInvitation();
-
-  // Get group initial
-  const groupInitial = details?.group_name?.charAt(0).toUpperCase() || 'G';
 
   if (!token) {
     return (
-      <div className="min-h-screen bg-bg flex items-center justify-center p-4">
-        <div className="card p-8 w-full max-w-sm text-center">
-          <p className="text-text-primary font-medium">Invalid invitation link</p>
-          <Link to="/login" className="btn-primary inline-block mt-4">
-            Go to Sign In
-          </Link>
-        </div>
+      <div className="min-h-screen flex items-center justify-center p-4 bg-[var(--color-surface)]">
+        <Card className="max-w-sm w-full text-center p-8 space-y-4">
+          <div className="text-3xl">⚠️</div>
+          <h2 className="font-display font-bold text-lg text-[var(--color-text-primary)]">
+            Invalid Link
+          </h2>
+          <p className="text-xs text-[var(--color-text-secondary)]">
+            This invitation link is missing or malformed.
+          </p>
+          <Button variant="primary" fullWidth onClick={() => navigate('/')}>
+            Back to Home
+          </Button>
+        </Card>
       </div>
     );
   }
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-bg flex items-center justify-center">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
-          <p className="text-sm text-text-secondary">Loading invitation...</p>
-        </div>
+      <div className="min-h-screen flex items-center justify-center p-4 bg-[var(--color-surface)]">
+        <Card className="max-w-sm w-full text-center p-8 space-y-4">
+          <Skeleton variant="circular" width={64} height={64} className="mx-auto" />
+          <Skeleton width="70%" height={20} className="mx-auto" />
+          <Skeleton width="90%" height={14} className="mx-auto" />
+        </Card>
       </div>
     );
   }
 
   if (fetchError || !details || !details.valid) {
     return (
-      <div className="min-h-screen bg-bg flex items-center justify-center p-4">
-        <div className="card p-8 w-full max-w-sm text-center">
-          <div className="w-16 h-16 rounded-full bg-error/10 flex items-center justify-center mx-auto mb-4">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-error">
-              <circle cx="12" cy="12" r="10" />
-              <line x1="15" y1="9" x2="9" y2="15" />
-              <line x1="9" y1="9" x2="15" y2="15" />
-            </svg>
+      <div className="min-h-screen flex items-center justify-center p-4 bg-[var(--color-surface)]">
+        <Card className="max-w-sm w-full text-center p-8 space-y-4">
+          <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto text-xl bg-[var(--color-owe-light)] text-[var(--color-owe)]">
+            ✕
           </div>
-          <h2 className="text-xl font-semibold text-text-primary mb-2">
-            Invitation Invalid
+          <h2 className="font-display font-bold text-xl text-[var(--color-text-primary)]">
+            Invitation Expired or Invalid
           </h2>
-          <p className="text-text-secondary mb-6 text-sm">
-            {details?.error ?? 'This invitation link is no longer valid.'}
+          <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed">
+            {details?.error ?? 'This invitation link is no longer valid or has already expired.'}
           </p>
-          <Link to="/login" className="btn-primary inline-block">
-            Go to Sign In
-          </Link>
-        </div>
+          <Button variant="secondary" fullWidth onClick={() => navigate('/')}>
+            Go to Home
+          </Button>
+        </Card>
       </div>
     );
   }
 
-  // User is not authenticated — show sign-in prompt
+  const groupName = details.group_name || 'Group';
+
+  // State 1: User is not signed in
   if (!user) {
     return (
-      <div className="min-h-screen bg-bg flex items-center justify-center p-4">
-        <div className="card p-8 w-full max-w-sm text-center">
-          <div className="w-20 h-20 rounded-[1.25rem] bg-primary/10 text-primary flex items-center justify-center mx-auto mb-5 text-3xl font-bold">
-            {groupInitial}
+      <div className="min-h-screen flex items-center justify-center p-4 bg-[var(--color-surface)]">
+        <Card className="max-w-sm w-full text-center p-8 space-y-5 shadow-xl">
+          <GroupAvatar name={groupName} size="xl" className="mx-auto shadow-md" />
+          <div>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--color-accent)]">
+              Group Invitation
+            </span>
+            <h2 className="font-display font-bold text-2xl text-[var(--color-text-primary)] mt-1">
+              Join {groupName}
+            </h2>
+            {details.inviter_name && (
+              <p className="text-xs text-[var(--color-text-secondary)] mt-1">
+                Invited by <strong className="text-[var(--color-text-primary)]">{details.inviter_name}</strong>
+              </p>
+            )}
           </div>
-          <h2 className="text-xl font-semibold text-text-primary mb-2">
-            You've been invited!
-          </h2>
-          <p className="text-text-secondary mb-1">
-            Join the group{' '}
-            <strong className="text-text-primary">{details.group_name}</strong>
+          <p className="text-xs text-[var(--color-text-secondary)]">
+            Sign in or create an account to start splitting expenses with this group.
           </p>
-          {details.inviter_name && (
-            <p className="text-sm text-text-tertiary mb-6">
-              Invited by {details.inviter_name}
-            </p>
-          )}
-          {!details.inviter_name && <div className="mb-6" />}
-          <p className="text-sm text-text-secondary mb-4">
-            Sign in to accept this invitation
-          </p>
-          <Link
-            to={`/login?redirect=/invite/${token}`}
-            className="btn-primary block text-center"
-          >
-            Sign In
-          </Link>
-        </div>
+          <div className="space-y-2 pt-2">
+            <Link to={`/login?redirect=/invite/${token}`} className="block">
+              <Button variant="primary" fullWidth size="lg">
+                Sign In to Join
+              </Button>
+            </Link>
+            <Link to={`/signup`} className="block">
+              <Button variant="ghost" fullWidth size="sm">
+                Create an Account
+              </Button>
+            </Link>
+          </div>
+        </Card>
       </div>
     );
   }
 
-  // User is authenticated and already a member
+  // State 2: User is already a member
   if (details.is_member) {
     return (
-      <div className="min-h-screen bg-bg flex items-center justify-center p-4">
-        <div className="card p-8 w-full max-w-sm text-center">
-          <div className="w-16 h-16 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-4">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-success">
-              <polyline points="20 6 9 17 4 12" />
-            </svg>
+      <div className="min-h-screen flex items-center justify-center p-4 bg-[var(--color-surface)]">
+        <Card className="max-w-sm w-full text-center p-8 space-y-5 shadow-xl">
+          <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto text-xl bg-[var(--color-owed-light)] text-[var(--color-owed)]">
+            ✓
           </div>
-          <h2 className="text-xl font-semibold text-text-primary mb-2">
-            Already a member
-          </h2>
-          <p className="text-text-secondary mb-6 text-sm">
-            You're already a member of{' '}
-            <strong className="text-text-primary">{details.group_name}</strong>.
-          </p>
-          <button
+          <div>
+            <h2 className="font-display font-bold text-xl text-[var(--color-text-primary)]">
+              Already a Member
+            </h2>
+            <p className="text-xs text-[var(--color-text-secondary)] mt-1.5 leading-relaxed">
+              You are already part of <strong className="text-[var(--color-text-primary)]">{groupName}</strong>.
+            </p>
+          </div>
+          <Button
+            variant="primary"
+            fullWidth
+            size="lg"
             onClick={() => navigate(`/groups/${details.group_id}`)}
-            className="btn-primary w-full"
           >
-            Go to Group
-          </button>
-        </div>
+            Open Group
+          </Button>
+        </Card>
       </div>
     );
   }
 
-  // User is authenticated, not a member — show accept button
+  // State 3: User is signed in and can accept
   const handleAccept = async () => {
     try {
       const result = await acceptInvitation.mutateAsync({ token });
@@ -145,51 +143,45 @@ export function InviteAcceptPage() {
         navigate(`/groups/${result.group_id}`);
       }
     } catch {
-      // Error is in acceptInvitation.error
+      // Handled by acceptInvitation.error
     }
   };
 
   return (
-    <div className="min-h-screen bg-bg flex items-center justify-center p-4">
-      <div className="card p-8 w-full max-w-sm text-center">
-        <div className="w-20 h-20 rounded-[1.25rem] bg-primary/10 text-primary flex items-center justify-center mx-auto mb-5 text-3xl font-bold">
-          {groupInitial}
+    <div className="min-h-screen flex items-center justify-center p-4 bg-[var(--color-surface)]">
+      <Card className="max-w-sm w-full text-center p-8 space-y-6 shadow-xl">
+        <GroupAvatar name={groupName} size="xl" className="mx-auto shadow-md" />
+        <div>
+          <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--color-accent)]">
+            You've Been Invited!
+          </span>
+          <h2 className="font-display font-bold text-2xl text-[var(--color-text-primary)] mt-1">
+            {groupName}
+          </h2>
+          {details.inviter_name && (
+            <p className="text-xs text-[var(--color-text-secondary)] mt-1">
+              Invited by <strong className="text-[var(--color-text-primary)]">{details.inviter_name}</strong>
+            </p>
+          )}
         </div>
-        <h2 className="text-xl font-semibold text-text-primary mb-2">
-          You've been invited!
-        </h2>
-        <p className="text-text-secondary mb-1">
-          Join <strong className="text-text-primary">{details.group_name}</strong>
-        </p>
-        {details.inviter_name && (
-          <p className="text-sm text-text-tertiary mb-6">
-            Invited by {details.inviter_name}
-          </p>
-        )}
-        {!details.inviter_name && <div className="mb-6" />}
 
         {acceptInvitation.error && (
-          <div className="mb-4 px-4 py-3 rounded-xl bg-error/10 text-error text-sm">
-            {(acceptInvitation.error as Error).message ??
-              'Failed to accept invitation'}
+          <div className="p-3 rounded-2xl text-xs font-semibold bg-[var(--color-owe-light)] text-[var(--color-owe)]">
+            {(acceptInvitation.error as Error).message ?? 'Failed to accept invitation'}
           </div>
         )}
 
-        <button
+        <Button
+          variant="primary"
+          fullWidth
+          size="lg"
           onClick={handleAccept}
           disabled={acceptInvitation.isPending}
-          className="btn-primary w-full"
+          loading={acceptInvitation.isPending}
         >
-          {acceptInvitation.isPending ? (
-            <span className="flex items-center justify-center gap-2">
-              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              Joining...
-            </span>
-          ) : (
-            'Accept Invitation'
-          )}
-        </button>
-      </div>
+          Accept & Join Group
+        </Button>
+      </Card>
     </div>
   );
 }

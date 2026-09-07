@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { useCreateWishlistItem } from '../hooks/useWishlist';
+import { Button } from '@/ui/primitives/Button';
 
 interface Props {
   groupId?: string;
@@ -42,64 +43,66 @@ export function WishlistItemForm({ groupId, onSuccess }: Props) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="form-label">Item Name</label>
+        <label className="block text-xs font-bold uppercase tracking-wider text-[var(--color-text-secondary)] mb-1.5">
+          Item Name
+        </label>
         <input
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           required
-          className="input-field"
-          placeholder="Wireless Headphones, Book, Gift..."
+          className="w-full px-4 py-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-sunken)] text-[var(--color-text-primary)] text-sm font-medium outline-none focus:border-[var(--color-accent)] transition-colors"
+          placeholder="Headphones, Board game, Gift..."
         />
       </div>
 
       <div>
-        <label className="form-label">Description <span className="text-text-tertiary font-normal">(optional)</span></label>
+        <label className="block text-xs font-bold uppercase tracking-wider text-[var(--color-text-secondary)] mb-1.5">
+          Description (optional)
+        </label>
         <input
           type="text"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className="input-field"
-          placeholder="Any details..."
+          className="w-full px-4 py-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-sunken)] text-[var(--color-text-primary)] text-sm font-medium outline-none focus:border-[var(--color-accent)] transition-colors"
+          placeholder="Add details, links, or notes..."
         />
       </div>
 
       <div>
-        <label className="form-label">Estimated Amount <span className="text-text-tertiary font-normal">(optional)</span></label>
+        <label className="block text-xs font-bold uppercase tracking-wider text-[var(--color-text-secondary)] mb-1.5">
+          Estimated Price (₹ INR, optional)
+        </label>
         <div className="relative">
-          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary font-medium">₹</span>
+          <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-[var(--color-text-tertiary)]">₹</span>
           <input
             type="number"
             min="1"
             step="1"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            className="input-field pl-8"
+            className="w-full pl-8 pr-4 py-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-sunken)] text-[var(--color-text-primary)] text-sm font-semibold outline-none focus:border-[var(--color-accent)] transition-colors"
             placeholder="0"
           />
         </div>
       </div>
 
       {error && (
-        <div className="px-4 py-3 rounded-xl bg-error/10 text-error text-sm">
+        <div className="p-3.5 rounded-2xl text-xs font-semibold bg-[var(--color-owe-light)] text-[var(--color-owe)]">
           {error}
         </div>
       )}
 
-      <button
+      <Button
         type="submit"
-        disabled={createItem.isPending}
-        className="btn-primary w-full"
+        variant="primary"
+        fullWidth
+        size="lg"
+        disabled={createItem.isPending || !title.trim()}
+        loading={createItem.isPending}
       >
-        {createItem.isPending ? (
-          <span className="flex items-center justify-center gap-2">
-            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-            Adding...
-          </span>
-        ) : (
-          'Add to Wishlist'
-        )}
-      </button>
+        Add to Wishlist
+      </Button>
     </form>
   );
 }

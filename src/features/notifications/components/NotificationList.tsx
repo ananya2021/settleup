@@ -1,5 +1,8 @@
 import { useNotifications, useMarkNotificationRead } from '../hooks/useNotifications';
 import { useAuth } from '@/features/auth/hooks/useAuth';
+import { Card } from '@/ui/primitives/Card';
+import { EmptyState } from '@/ui/primitives/EmptyState';
+import { Skeleton } from '@/ui/primitives/Skeleton';
 
 export function NotificationList() {
   const { user } = useAuth();
@@ -8,28 +11,26 @@ export function NotificationList() {
 
   if (isLoading) {
     return (
-      <div className="page-container">
-        <div className="skeleton-card h-20 mb-3" />
-        <div className="skeleton-card h-20 mb-3" />
-        <div className="skeleton-card h-20" />
+      <div className="space-y-3 max-w-xl mx-auto pb-12">
+        <Skeleton height={28} width={140} />
+        {[1, 2, 3].map((i) => (
+          <Skeleton key={i} height={72} />
+        ))}
       </div>
     );
   }
 
   if (!notifications || notifications.length === 0) {
     return (
-      <div className="page-container">
-        <h1 className="text-2xl font-bold text-text-primary mb-6">Notifications</h1>
-        <div className="card p-10 text-center">
-          <div className="w-16 h-16 rounded-full bg-surface flex items-center justify-center mx-auto mb-4">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-text-tertiary">
-              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-            </svg>
-          </div>
-          <p className="font-medium text-text-primary mb-1">All caught up</p>
-          <p className="text-sm text-text-secondary">No notifications yet</p>
-        </div>
+      <div className="max-w-xl mx-auto pb-12 space-y-4">
+        <h1 className="font-display text-2xl font-bold text-[var(--color-text-primary)]">
+          Notifications
+        </h1>
+        <EmptyState
+          emoji="🔔"
+          title="All caught up!"
+          description="You have no notifications. Updates on expenses and settlements will show up here."
+        />
       </div>
     );
   }
@@ -39,43 +40,53 @@ export function NotificationList() {
   };
 
   return (
-    <div className="page-container pb-24">
-      <h1 className="text-2xl font-bold text-text-primary mb-6">Notifications</h1>
-      <div className="card overflow-hidden">
-        {notifications.map((notification, i) => (
+    <div className="space-y-4 max-w-xl mx-auto pb-12">
+      <h1 className="font-display text-2xl font-bold text-[var(--color-text-primary)]">
+        Notifications
+      </h1>
+      <Card padded={false} className="divide-y divide-[var(--color-border-light)] overflow-hidden">
+        {notifications.map((notification) => (
           <div
             key={notification.id}
             onClick={() => !notification.read && handleMarkRead(notification.id)}
-            className={`p-4 transition-colors cursor-pointer ${
-              !notification.read ? 'hover:bg-surface-active' : 'opacity-75'
-            } ${
-              i < notifications.length - 1 ? 'border-b border-border/50' : ''
+            className={`p-4 sm:p-5 flex items-start gap-3 transition-colors cursor-pointer ${
+              notification.read
+                ? 'bg-[var(--color-surface-raised)] opacity-75'
+                : 'bg-[var(--color-surface-raised)] hover:bg-[var(--color-surface-sunken)]'
             }`}
           >
-            <div className="flex items-start gap-3">
-              {/* Unread indicator */}
-              <div className="pt-2 flex-shrink-0">
-                {!notification.read ? (
-                  <div className="w-2.5 h-2.5 rounded-full bg-primary" />
-                ) : (
-                  <div className="w-2.5 h-2.5" />
-                )}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className={`text-sm ${!notification.read ? 'font-semibold text-text-primary' : 'font-medium text-text-secondary'}`}>
+            <div className="pt-1.5 flex-shrink-0">
+              {!notification.read ? (
+                <div className="w-2.5 h-2.5 rounded-full bg-[var(--color-accent)] shadow-sm" />
+              ) : (
+                <div className="w-2.5 h-2.5 rounded-full bg-transparent" />
+              )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-baseline justify-between gap-2">
+                <p
+                  className={`text-sm font-semibold truncate ${
+                    !notification.read
+                      ? 'text-[var(--color-text-primary)]'
+                      : 'text-[var(--color-text-secondary)]'
+                  }`}
+                >
                   {notification.title}
                 </p>
-                <p className="text-sm text-text-secondary mt-0.5">
-                  {notification.body}
-                </p>
-                <p className="text-xs text-text-tertiary mt-1.5">
-                  {new Date(notification.createdAt).toLocaleDateString()}
-                </p>
+                <span className="text-[11px] text-[var(--color-text-tertiary)] flex-shrink-0">
+                  {new Date(notification.createdAt).toLocaleDateString('en-IN', {
+                    month: 'short',
+                    day: 'numeric',
+                  })}
+                </span>
               </div>
+              <p className="text-xs text-[var(--color-text-secondary)] mt-0.5 leading-relaxed">
+                {notification.body}
+              </p>
             </div>
           </div>
         ))}
-      </div>
+      </Card>
     </div>
   );
 }

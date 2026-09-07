@@ -1,5 +1,68 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
+
+export interface GroupExpenseItem {
+  id: string;
+  groupId: string;
+  paidBy: string;
+  description: string;
+  totalAmount: number;
+  splitType: 'equal' | 'exact' | 'percentage';
+  createdAt: Date;
+  splits?: Array<{ id: string; userId: string; amount: number }>;
+}
+
+/**
+ * Hook to fetch expenses for a specific group.
+ * Backed by Supabase RLS policy on expenses table.
+ */
+export function useGroupExpenses(groupId: string) {
+  return useQuery({
+    queryKey: ['expenses', groupId],
+    queryFn: async (): Promise<GroupExpenseItem[]> => {
+      const { data, error } = await supabase
+        .from('expenses')
+        .select(`
+          id,
+          group_id,
+          paid_by,
+          description,
+          total_amount,
+          split_type,
+          created_at,
+          expense_splits (
+            id,
+            user_id,
+            amount
+          )
+        `)
+        .eq('group_id', groupId)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('[useGroupExpenses] error:', error);
+        throw error;
+      }
+
+      return (data ?? []).map((e: any) => ({
+        id: e.id,
+        groupId: e.group_id,
+        paidBy: e.paid_by,
+        description: e.description,
+        totalAmount: e.total_amount,
+        splitType: e.split_type as 'equal' | 'exact' | 'percentage',
+        createdAt: new Date(e.created_at),
+        splits: (e.expense_splits ?? []).map((s: any) => ({
+          id: s.id,
+          userId: s.user_id,
+          amount: s.amount,
+        })),
+      }));
+    },
+    enabled: !!groupId,
+    staleTime: 15 * 1000,
+  });
+}
 
 /**
  * Hook to create a group expense via Edge Function.

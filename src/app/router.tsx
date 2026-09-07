@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ProtectedRoute } from '@/ui/layout/ProtectedRoute';
 import { AppShell } from '@/ui/layout/AppShell';
 import { LoginForm } from '@/features/auth/components/LoginForm';
@@ -12,6 +12,7 @@ import { NotificationList } from '@/features/notifications/components/Notificati
 import { CreateExpenseForm } from '@/features/expenses/components/CreateExpenseForm';
 import { CreateIndividualDebtForm } from '@/features/expenses/components/CreateIndividualDebtForm';
 import { SettlePage } from '@/features/settlements/components/SettlePage';
+import { ProfilePage } from '@/features/profile/components/ProfilePage';
 
 export function AppRouter() {
   return (
@@ -36,44 +37,25 @@ export function AppRouter() {
           <Route
             path="/expenses/new"
             element={
-              <div className="p-4">
-                <h1 className="text-2xl font-bold text-gray-900 mb-4">New Expense</h1>
-                <div className="bg-white rounded-xl p-6 shadow-sm">
-                  <CreateExpenseForm />
-                </div>
+              <div className="py-4">
+                <CreateExpenseForm />
               </div>
             }
           />
           <Route
             path="/debts/new"
             element={
-              <div className="p-4">
-                <h1 className="text-2xl font-bold text-gray-900 mb-4">New Debt</h1>
-                <div className="bg-white rounded-xl p-6 shadow-sm">
-                  <CreateIndividualDebtForm />
-                </div>
+              <div className="py-4">
+                <CreateIndividualDebtForm />
               </div>
             }
           />
           <Route path="/settle" element={<SettlePage />} />
-          <Route
-            path="/balances"
-            element={
-              <div className="p-4">
-                <h1 className="text-xl font-bold mb-4">Balances</h1>
-                <BalanceDashboard />
-              </div>
-            }
-          />
-          <Route
-            path="/notifications"
-            element={
-              <div className="p-4">
-                <h1 className="text-xl font-bold mb-4">Notifications</h1>
-                <NotificationList />
-              </div>
-            }
-          />
+          <Route path="/balances" element={<BalanceDashboard />} />
+          <Route path="/notifications" element={<NotificationList />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          {/* Catch-all */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>
     </BrowserRouter>

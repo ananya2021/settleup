@@ -1,46 +1,53 @@
+import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGroups } from '../hooks/useGroups';
+import { useBalances } from '@/features/balances/hooks/useBalances';
 import { useAuth } from '@/features/auth/hooks/useAuth';
+import { GroupAvatar } from '@/ui/primitives/GroupAvatar';
+import { Card } from '@/ui/primitives/Card';
+import { Badge } from '@/ui/primitives/Badge';
+import { EmptyState } from '@/ui/primitives/EmptyState';
+import { Skeleton } from '@/ui/primitives/Skeleton';
 
-/** Generate a consistent pastel color from a string */
-function groupColor(name: string) {
-  const colors = [
-    { bg: '#EDE9FE', text: '#7C3AED' },
-    { bg: '#DBEAFE', text: '#2563EB' },
-    { bg: '#D1FAE5', text: '#059669' },
-    { bg: '#FEF3C7', text: '#D97706' },
-    { bg: '#FCE7F3', text: '#DB2777' },
-    { bg: '#E0E7FF', text: '#4F46E5' },
-    { bg: '#CCFBF1', text: '#0D9488' },
-    { bg: '#FEE2E2', text: '#DC2626' },
-  ];
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  return colors[Math.abs(hash) % colors.length];
-}
-
-function getInitials(name: string) {
-  return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
-}
-
-export function GroupList() {
+export function GroupList({ onOpenCreate }: { onOpenCreate: () => void }) {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { data: groups, isLoading } = useGroups(user?.id ?? '');
+  const { data: groups, isLoading: groupsLoading } = useGroups(user?.id ?? '');
+  const { data: balances } = useBalances(user?.id ?? '');
 
-  if (isLoading) {
+  const obligations = balances?.obligations ?? [];
+
+  // Map each groupId to the current user's net balance within that group
+  const groupBalances = useMemo(() => {
+    const map: Record<string, number> = {};
+    if (!user) return map;
+
+    for (const ob of obligations) {
+      if (!ob.groupId) continue;
+      const remaining = ob.originalAmount - ob.settledAmount;
+      if (remaining <= 0) continue;
+
+      if (!map[ob.groupId]) map[ob.groupId] = 0;
+      if (ob.creditorId === user.id) {
+        map[ob.groupId] += remaining;
+      } else if (ob.debtorId === user.id) {
+        map[ob.groupId] -= remaining;
+      }
+    }
+    return map;
+  }, [obligations, user]);
+
+  if (groupsLoading) {
     return (
-      <div className="space-y-3">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="card p-4">
-            <div className="flex items-center gap-3">
-              <div className="skeleton w-12 h-12 rounded-xl" />
-              <div className="flex-1 space-y-2">
-                <div className="skeleton h-4 w-32" />
-                <div className="skeleton h-3 w-20" />
-              </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+        {[1, 2, 3, 4].map((i) => (
+          <Card key={i} className="flex items-center gap-4">
+            <Skeleton variant="rounded" width={52} height={52} />
+            <div className="flex-1 space-y-2">
+              <Skeleton width="50%" height={16} />
+              <Skeleton width="30%" height={12} />
             </div>
-          </div>
+          </Card>
         ))}
       </div>
     );
@@ -48,47 +55,65 @@ export function GroupList() {
 
   if (!groups || groups.length === 0) {
     return (
-      <div className="empty-state">
-        <div className="empty-state-icon">👥</div>
-        <p className="empty-state-title">No groups yet</p>
-        <p className="empty-state-desc">
-          Create your first group and start splitting expenses with friends
-        </p>
-      </div>
+      <EmptyState
+        emoji="👥"
+        title="Your first group is waiting ✨"
+        description="Create a group for trips, roommates, dinners, or anything you share."
+        actionLabel="Create Group"
+        onAction={onOpenCreate}
+      />
     );
   }
 
   return (
-    <div className="space-y-3">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
       {groups.map((group) => {
-        const colors = groupColor(group.name);
+        const netGroupBalance = groupBalances[group.id] ?? 0;
+
         return (
-          <button
+          <Card
             key={group.id}
+            interactive
             onClick={() => navigate(`/groups/${group.id}`)}
-            className="w-full card-interactive p-4 flex items-center gap-4 text-left"
+            className="flex items-center justify-between p-4 sm:p-5"
           >
-            {/* Group avatar */}
-            <div
-              className="avatar avatar-lg"
-              style={{ background: colors.bg, color: colors.text }}
-            >
-              {getInitials(group.name)}
+            <div className="flex items-center gap-3.5 min-w-0">
+              <GroupAvatar name={group.name} size="lg" />
+              <div className="min-w-0">
+                <h3 className="font-display font-bold text-base text-[var(--color-text-primary)] truncate">
+                  {group.name}
+                </h3>
+                <p className="text-xs text-[var(--color-text-secondary)] mt-0.5 truncate">
+                  Created {new Date(group.createdAt).toLocaleDateString('en-IN', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
+                  })}
+                </p>
+                <div className="mt-2">
+                  {netGroupBalance > 0 ? (
+                    <Badge
+                      direction="owed"
+                      amount={`₹${netGroupBalance.toLocaleString('en-IN')}`}
+                    />
+                  ) : netGroupBalance < 0 ? (
+                    <Badge
+                      direction="owe"
+                      amount={`₹${Math.abs(netGroupBalance).toLocaleString('en-IN')}`}
+                    />
+                  ) : (
+                    <Badge direction="settled" label="Settled" />
+                  )}
+                </div>
+              </div>
             </div>
-            {/* Group info */}
-            <div className="flex-1 min-w-0">
-              <p className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>
-                {group.name}
-              </p>
-              <p className="text-sm" style={{ color: 'var(--color-text-tertiary)' }}>
-                Created {new Date(group.createdAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' })}
-              </p>
+
+            <div className="flex-shrink-0 pl-2">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-tertiary)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
             </div>
-            {/* Chevron */}
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-tertiary)" strokeWidth="2" strokeLinecap="round">
-              <polyline points="9 18 15 12 9 6" />
-            </svg>
-          </button>
+          </Card>
         );
       })}
     </div>

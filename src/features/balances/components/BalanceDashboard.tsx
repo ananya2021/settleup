@@ -1,117 +1,246 @@
+import { useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useBalances } from '../hooks/useBalances';
 import { useAuth } from '@/features/auth/hooks/useAuth';
-import { formatMoney, createMoneyOrZero } from '@/domain/entities/Money';
+import { useUserNames } from '@/features/users/hooks/useUserNames';
+import { Card } from '@/ui/primitives/Card';
+import { Badge } from '@/ui/primitives/Badge';
+import { Button } from '@/ui/primitives/Button';
+import { Avatar } from '@/ui/primitives/Avatar';
+import { EmptyState } from '@/ui/primitives/EmptyState';
+import { Skeleton } from '@/ui/primitives/Skeleton';
 
 export function BalanceDashboard() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const { data, isLoading } = useBalances(user?.id ?? '');
+
+  const pairwise = data?.pairwise ?? {};
+  const simplified = data?.simplified ?? [];
+  const netBalance = data?.netBalance ?? 0;
+
+  // Resolve all unique user IDs involved
+  const userIds = useMemo(() => {
+    const set = new Set<string>();
+    Object.keys(pairwise).forEach((id) => set.add(id));
+    simplified.forEach((d) => {
+      set.add(d.from);
+      set.add(d.to);
+    });
+    return Array.from(set);
+  }, [pairwise, simplified]);
+
+  const { data: userProfiles } = useUserNames(userIds);
+
+  // Totals
+  const { totalOwedToUser, totalUserOwes } = useMemo(() => {
+    let owed = 0;
+    let owe = 0;
+    Object.values(pairwise).forEach((val) => {
+      if (val > 0) owed += val;
+      if (val < 0) owe += Math.abs(val);
+    });
+    return { totalOwedToUser: owed, totalUserOwes: owe };
+  }, [pairwise]);
 
   if (isLoading) {
     return (
-      <div className="page-container">
-        <div className="skeleton-card h-36 mb-4" />
-        <div className="skeleton-card h-48" />
+      <div className="space-y-6 max-w-2xl mx-auto pb-12">
+        <div className="grid grid-cols-3 gap-3">
+          {[1, 2, 3].map((i) => (
+            <Skeleton key={i} height={80} />
+          ))}
+        </div>
+        <Skeleton height={200} />
       </div>
     );
   }
 
-  if (!data) return null;
-
-  const { netBalance, pairwise, simplified } = data;
+  const pairwiseEntries = Object.entries(pairwise);
 
   return (
-    <div className="page-container pb-24">
-      <h1 className="text-2xl font-bold text-text-primary mb-6">Balances</h1>
-
-      {/* Net Balance Hero Card */}
-      <div className="card mb-6 overflow-hidden">
-        <div className={`p-6 text-center ${netBalance >= 0 ? 'bg-gradient-to-br from-success/5 to-success/10' : 'bg-gradient-to-br from-error/5 to-error/10'}`}>
-          <p className="text-sm font-medium text-text-secondary uppercase tracking-wider mb-2">
-            Your Balance
-          </p>
-          <p className={`text-4xl font-bold ${netBalance >= 0 ? 'text-success' : 'text-error'}`}>
-            {netBalance >= 0 ? '+' : ''}{formatMoney(createMoneyOrZero(Math.abs(netBalance)))}
-          </p>
-          <p className="text-sm text-text-secondary mt-2">
-            {netBalance > 0 ? 'You are owed money' : netBalance < 0 ? 'You owe money' : 'All settled up'}
+    <div className="space-y-6 max-w-2xl mx-auto pb-12">
+      {/* Screen Title */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="font-display text-2xl sm:text-3xl font-bold text-[var(--color-text-primary)] tracking-tight">
+            Balances
+          </h1>
+          <p className="text-xs sm:text-sm text-[var(--color-text-secondary)] mt-0.5">
+            Your combined debts across all groups and friends
           </p>
         </div>
+        <Button variant="primary" size="sm" onClick={() => navigate('/settle')}>
+          Settle Up
+        </Button>
       </div>
 
-      {/* Pairwise Balances */}
-      {Object.keys(pairwise).length > 0 && (
-        <div className="mb-6">
-          <h2 className="text-sm font-semibold text-text-tertiary uppercase tracking-wider mb-3 px-1">
-            With Others
-          </h2>
-          <div className="card overflow-hidden">
-            {Object.entries(pairwise).map(([userId, balance], i, arr) => (
-              <div
-                key={userId}
-                className={`flex items-center justify-between p-4 ${
-                  i < arr.length - 1 ? 'border-b border-border/50' : ''
-                }`}
-              >
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm flex-shrink-0 ${
-                    balance >= 0 ? 'bg-success/10 text-success' : 'bg-error/10 text-error'
-                  }`}>
-                    {userId.slice(0, 1).toUpperCase()}
-                  </div>
-                  <p className="font-medium text-text-primary truncate">
-                    {userId.slice(0, 12)}…
-                  </p>
-                </div>
-                <span className={`font-semibold flex-shrink-0 ${balance >= 0 ? 'text-success' : 'text-error'}`}>
-                  {balance >= 0 ? '+' : ''}{formatMoney(createMoneyOrZero(Math.abs(balance)))}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Simplified Debts */}
-      {simplified.length > 0 && (
-        <div className="mb-6">
-          <h2 className="text-sm font-semibold text-text-tertiary uppercase tracking-wider mb-3 px-1">
-            Settle Up
-          </h2>
-          <div className="card overflow-hidden">
-            {simplified.map((debt, i, arr) => (
-              <div
-                key={i}
-                className={`flex items-center justify-between p-4 ${
-                  i < arr.length - 1 ? 'border-b border-border/50' : ''
-                }`}
-              >
-                <div className="min-w-0">
-                  <p className="text-sm font-medium text-text-primary">
-                    <span className="truncate">{debt.from.slice(0, 10)}…</span>
-                    <span className="text-text-tertiary mx-1.5">→</span>
-                    <span className="truncate">{debt.to.slice(0, 10)}…</span>
-                  </p>
-                </div>
-                <span className="text-sm font-semibold text-primary flex-shrink-0">
-                  {formatMoney(debt.amount)}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Empty state */}
-      {simplified.length === 0 && netBalance === 0 && (
-        <div className="card p-10 text-center">
-          <div className="w-20 h-20 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-5">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-success">
-              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-              <polyline points="22 4 12 14.01 9 11.01" />
+      {/* Top 3-Card Summary Grid */}
+      <div className="grid grid-cols-3 gap-2.5 sm:gap-4">
+        {/* 1. You're Owed */}
+        <Card className="p-3.5 sm:p-5 flex flex-col justify-between text-left">
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-[var(--color-owed)]">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8">
+              <line x1="12" y1="19" x2="12" y2="5" /><polyline points="5 12 12 5 19 12" />
             </svg>
+            <span className="truncate">Owed to you</span>
           </div>
-          <p className="text-lg font-semibold text-text-primary mb-1">All settled up!</p>
-          <p className="text-sm text-text-secondary">Nothing to pay. Beautiful.</p>
+          <p className="text-lg sm:text-2xl font-bold text-amount text-[var(--color-owed)] mt-2">
+            ₹{totalOwedToUser.toLocaleString('en-IN')}
+          </p>
+        </Card>
+
+        {/* 2. You Owe */}
+        <Card className="p-3.5 sm:p-5 flex flex-col justify-between text-left">
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-[var(--color-owe)]">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8">
+              <line x1="12" y1="5" x2="12" y2="19" /><polyline points="19 12 12 19 5 12" />
+            </svg>
+            <span className="truncate">You owe</span>
+          </div>
+          <p className="text-lg sm:text-2xl font-bold text-amount text-[var(--color-owe)] mt-2">
+            ₹{totalUserOwes.toLocaleString('en-IN')}
+          </p>
+        </Card>
+
+        {/* 3. Net Balance */}
+        <Card className="p-3.5 sm:p-5 flex flex-col justify-between text-left">
+          <div className="text-xs font-semibold text-[var(--color-text-secondary)]">
+            <span>Net total</span>
+          </div>
+          <p
+            className={`text-lg sm:text-2xl font-bold text-amount mt-2 ${
+              netBalance > 0
+                ? 'text-[var(--color-owed)]'
+                : netBalance < 0
+                ? 'text-[var(--color-owe)]'
+                : 'text-[var(--color-text-primary)]'
+            }`}
+          >
+            {netBalance < 0 ? '-' : netBalance > 0 ? '+' : ''}₹{Math.abs(netBalance).toLocaleString('en-IN')}
+          </p>
+        </Card>
+      </div>
+
+      {/* Per-Person Balances List */}
+      <div>
+        <h2 className="text-xs font-bold uppercase tracking-wider text-[var(--color-text-tertiary)] mb-3 px-1">
+          By Friend ({pairwiseEntries.length})
+        </h2>
+
+        {pairwiseEntries.length > 0 ? (
+          <Card padded={false} className="divide-y divide-[var(--color-border-light)] overflow-hidden">
+            {pairwiseEntries.map(([otherId, amount]) => {
+              const otherName = userProfiles?.[otherId]?.name || 'Friend';
+              const isOwed = amount > 0;
+              const isOwe = amount < 0;
+
+              return (
+                <div
+                  key={otherId}
+                  className="p-4 sm:p-5 flex items-center justify-between gap-3 hover:bg-[var(--color-surface-sunken)] transition-colors"
+                >
+                  <div className="flex items-center gap-3.5 min-w-0">
+                    <Avatar name={otherName} size="md" />
+                    <div className="min-w-0">
+                      <p className="font-semibold text-sm text-[var(--color-text-primary)] truncate">
+                        {otherName}
+                      </p>
+                      <p className="text-xs text-[var(--color-text-secondary)] truncate mt-0.5">
+                        {isOwed ? 'Owes you money' : isOwe ? 'You owe money' : 'Settled up'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 flex-shrink-0">
+                    <div className="text-right">
+                      <span
+                        className={`font-bold text-sm text-amount ${
+                          isOwed ? 'text-[var(--color-owed)]' : 'text-[var(--color-owe)]'
+                        }`}
+                      >
+                        {isOwed ? '+' : '-'}₹{Math.abs(amount).toLocaleString('en-IN')}
+                      </span>
+                      <div className="mt-0.5">
+                        <Badge
+                          direction={isOwed ? 'owed' : 'owe'}
+                          label={isOwed ? 'owes you' : 'you owe'}
+                        />
+                      </div>
+                    </div>
+
+                    {isOwe && (
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => navigate(`/settle`)}
+                        className="text-xs ml-1"
+                      >
+                        Settle
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </Card>
+        ) : (
+          <EmptyState
+            emoji="🎉"
+            title="All clear! No balances"
+            description="You and your friends are completely squared away. Nothing to collect or pay."
+          />
+        )}
+      </div>
+
+      {/* Suggested Settlements / Simplified Debts */}
+      {simplified.length > 0 && (
+        <div>
+          <div className="flex items-center justify-between mb-3 px-1">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-[var(--color-text-tertiary)]">
+              Smart Settle Plan
+            </h2>
+            <span className="text-xs text-[var(--color-text-secondary)]">
+              Minimal transaction route
+            </span>
+          </div>
+
+          <Card padded={false} className="divide-y divide-[var(--color-border-light)] overflow-hidden">
+            {simplified.map((debt, index) => {
+              const fromName = debt.from === user?.id ? 'You' : userProfiles?.[debt.from]?.name || 'Member';
+              const toName = debt.to === user?.id ? 'You' : userProfiles?.[debt.to]?.name || 'Member';
+              const isUserDebtor = debt.from === user?.id;
+
+              return (
+                <div key={index} className="p-4 flex items-center justify-between gap-3 text-xs sm:text-sm">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="font-semibold text-[var(--color-text-primary)] truncate">
+                      {fromName}
+                    </span>
+                    <span className="text-[var(--color-text-tertiary)] font-bold">→</span>
+                    <span className="font-semibold text-[var(--color-text-primary)] truncate">
+                      {toName}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-3 flex-shrink-0">
+                    <span className="font-bold text-amount text-[var(--color-accent)]">
+                      ₹{debt.amount.toLocaleString('en-IN')}
+                    </span>
+                    {isUserDebtor && (
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        onClick={() => navigate('/settle')}
+                      >
+                        Pay
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </Card>
         </div>
       )}
     </div>

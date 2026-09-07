@@ -1,6 +1,12 @@
 import { useState, useCallback, useRef, useEffect, type FormEvent } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useCreateIndividualDebt } from '../hooks/useIndividualDebts';
 import { useUserSearch, type UserSearchResult } from '@/features/users/hooks/useUserSearch';
+import { Card } from '@/ui/primitives/Card';
+import { Button } from '@/ui/primitives/Button';
+import { Avatar } from '@/ui/primitives/Avatar';
+import { AmountInput } from '@/ui/primitives/AmountInput';
+import { SuccessCheck } from '@/ui/primitives/SuccessCheck';
 
 interface Props {
   onSuccess?: () => void;
@@ -8,6 +14,7 @@ interface Props {
 }
 
 export function CreateIndividualDebtForm({ onSuccess, onCancel }: Props) {
+  const navigate = useNavigate();
   const createDebt = useCreateIndividualDebt();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -21,7 +28,6 @@ export function CreateIndividualDebtForm({ onSuccess, onCancel }: Props) {
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown on outside click
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
@@ -32,8 +38,8 @@ export function CreateIndividualDebtForm({ onSuccess, onCancel }: Props) {
     return () => document.removeEventListener('mousedown', handleClick);
   }, []);
 
-  const handleUserSelect = useCallback((user: UserSearchResult) => {
-    setSelectedUser(user);
+  const handleUserSelect = useCallback((u: UserSearchResult) => {
+    setSelectedUser(u);
     setSearchQuery('');
     setShowDropdown(false);
   }, []);
@@ -44,197 +50,201 @@ export function CreateIndividualDebtForm({ onSuccess, onCancel }: Props) {
     setSuccess(false);
 
     if (!selectedUser) {
-      setError('Please select a user from the list');
+      setError('Please select who owes you');
       return;
     }
 
     const amountNum = parseInt(amount, 10);
     if (isNaN(amountNum) || amountNum <= 0) {
-      setError('Amount must be a positive integer');
+      setError('Amount must be a positive whole number');
+      return;
+    }
+
+    if (!description.trim()) {
+      setError('Please provide a reason or description');
       return;
     }
 
     try {
       await createDebt.mutateAsync({
         debtorId: selectedUser.id,
-        description,
+        description: description.trim(),
         amount: amountNum,
       });
       setSuccess(true);
-      setSelectedUser(null);
-      setSearchQuery('');
-      setDescription('');
-      setAmount('');
-      onSuccess?.();
+      setTimeout(() => {
+        if (onSuccess) {
+          onSuccess();
+        } else {
+          navigate('/balances');
+        }
+      }, 1500);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create debt');
+      setError(err instanceof Error ? err.message : 'Failed to record debt');
       setSuccess(false);
     }
   };
 
   if (success) {
     return (
-      <div className="card p-8 text-center">
-        <div className="w-16 h-16 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-4">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-success">
-            <polyline points="20 6 9 17 4 12" />
-          </svg>
-        </div>
-        <p className="text-lg font-semibold text-text-primary mb-1">Debt Recorded</p>
-        <p className="text-sm text-text-secondary">The other person will be notified</p>
-      </div>
+      <Card className="p-8 max-w-md mx-auto">
+        <SuccessCheck
+          title="Debt Recorded! 🎉"
+          message={`Recorded ₹${parseInt(amount, 10).toLocaleString('en-IN')} owed by ${selectedUser?.name}.`}
+        />
+      </Card>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
-      {/* User Search */}
-      <div className="relative" ref={dropdownRef}>
-        <label className="form-label">Who owes you?</label>
-        {!selectedUser ? (
-          <>
+    <div className="max-w-xl mx-auto space-y-6 pb-12">
+      {/* Top Bar */}
+      <div className="flex items-center justify-between">
+        <button
+          type="button"
+          onClick={() => (onCancel ? onCancel() : navigate(-1))}
+          className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] pressable"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+          <span>Cancel</span>
+        </button>
+        <h1 className="font-display font-bold text-lg text-[var(--color-text-primary)]">
+          Record Direct Debt
+        </h1>
+        <div className="w-12" />
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Amount Input */}
+        <Card className="p-6">
+          <label className="block text-center text-xs font-bold uppercase tracking-wider text-[var(--color-text-secondary)] mb-1">
+            Amount Owed
+          </label>
+          <AmountInput
+            value={amount}
+            onChange={setAmount}
+            placeholder="0"
+            autoFocus
+          />
+        </Card>
+
+        {/* User Search */}
+        <Card className="p-5 space-y-3" ref={dropdownRef}>
+          <label className="block text-xs font-bold uppercase tracking-wider text-[var(--color-text-secondary)]">
+            Who owes you?
+          </label>
+          {!selectedUser ? (
             <div className="relative">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary">
-                <circle cx="11" cy="11" r="8" />
-                <line x1="21" y1="21" x2="16.65" y2="16.65" />
-              </svg>
+              <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--color-text-tertiary)] pointer-events-none">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+              </div>
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
-                  setSelectedUser(null);
                   setShowDropdown(true);
                 }}
                 onFocus={() => {
-                  if (searchQuery.length >= 2 && !selectedUser) {
-                    setShowDropdown(true);
-                  }
+                  if (searchQuery.length >= 2) setShowDropdown(true);
                 }}
-                required
-                className="input-field pl-10"
-                placeholder="Search by name or email..."
+                className="w-full pl-10 pr-4 py-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-sunken)] text-[var(--color-text-primary)] text-sm font-medium outline-none focus:border-[var(--color-accent)] transition-colors"
+                placeholder="Search friend by name or email..."
               />
-            </div>
-            {showDropdown && searchQuery.length >= 2 && (
-              <div className="absolute z-20 w-full mt-1 bg-white border border-border rounded-xl shadow-lg max-h-48 overflow-y-auto">
-                {searching ? (
-                  <div className="p-4 text-center">
-                    <div className="inline-flex items-center gap-2 text-sm text-text-secondary">
-                      <div className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
-                      Searching...
+
+              {showDropdown && searchQuery.length >= 2 && (
+                <div className="absolute z-20 w-full mt-1.5 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-raised)] shadow-xl max-h-48 overflow-y-auto p-1 divide-y divide-[var(--color-border-light)]">
+                  {searching ? (
+                    <div className="p-4 text-center text-xs text-[var(--color-text-secondary)]">
+                      Searching users…
                     </div>
-                  </div>
-                ) : searchResults && searchResults.length > 0 ? (
-                  searchResults.map((u) => (
-                    <button
-                      key={u.id}
-                      type="button"
-                      onClick={() => handleUserSelect(u)}
-                      className="w-full text-left p-3 hover:bg-surface-active flex items-center gap-3 border-b border-border/50 last:border-0"
-                    >
-                      <div className="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center font-semibold text-sm flex-shrink-0">
-                        {u.name?.charAt(0).toUpperCase() || '?'}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium text-text-primary truncate">{u.name}</p>
-                        <p className="text-xs text-text-secondary truncate">{u.email}</p>
-                      </div>
-                    </button>
-                  ))
-                ) : (
-                  <div className="p-4 text-center text-sm text-text-secondary">No users found</div>
-                )}
+                  ) : searchResults && searchResults.length > 0 ? (
+                    searchResults.map((u) => (
+                      <button
+                        key={u.id}
+                        type="button"
+                        onClick={() => handleUserSelect(u)}
+                        className="w-full text-left p-3 flex items-center gap-3 rounded-xl hover:bg-[var(--color-surface-sunken)] transition-colors"
+                      >
+                        <Avatar name={u.name} size="sm" />
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-semibold text-[var(--color-text-primary)] truncate">
+                            {u.name}
+                          </p>
+                          <p className="text-xs text-[var(--color-text-secondary)] truncate">
+                            {u.email}
+                          </p>
+                        </div>
+                      </button>
+                    ))
+                  ) : (
+                    <div className="p-4 text-center text-xs text-[var(--color-text-secondary)]">
+                      No users found
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="p-3.5 rounded-2xl bg-[var(--color-surface-sunken)] border border-[var(--color-border-light)] flex items-center justify-between">
+              <div className="flex items-center gap-3 min-w-0">
+                <Avatar name={selectedUser.name} size="md" />
+                <div className="min-w-0">
+                  <p className="font-semibold text-sm text-[var(--color-text-primary)] truncate">
+                    {selectedUser.name}
+                  </p>
+                  <p className="text-xs text-[var(--color-text-secondary)] truncate">
+                    {selectedUser.email}
+                  </p>
+                </div>
               </div>
-            )}
-          </>
-        ) : (
-          <div className="flex items-center gap-3 p-3 bg-primary/5 rounded-xl">
-            <div className="w-10 h-10 rounded-full bg-primary/15 text-primary flex items-center justify-center font-semibold text-sm">
-              {selectedUser.name?.charAt(0).toUpperCase() || '?'}
+              <button
+                type="button"
+                onClick={() => setSelectedUser(null)}
+                className="text-xs font-semibold text-[var(--color-accent)] hover:underline ml-2"
+              >
+                Change
+              </button>
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-medium text-text-primary truncate">{selectedUser.name}</p>
-              <p className="text-sm text-text-secondary truncate">{selectedUser.email}</p>
-            </div>
-            <button
-              type="button"
-              onClick={() => {
-                setSelectedUser(null);
-                setSearchQuery('');
-              }}
-              className="w-8 h-8 rounded-full bg-surface flex items-center justify-center text-text-secondary hover:text-text-primary transition-colors"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            </button>
+          )}
+        </Card>
+
+        {/* Description */}
+        <Card className="p-5 space-y-2">
+          <label className="block text-xs font-bold uppercase tracking-wider text-[var(--color-text-secondary)]">
+            What is it for?
+          </label>
+          <input
+            type="text"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            required
+            placeholder="e.g. Lunch split, Cab fare, Concert ticket..."
+            className="w-full px-4 py-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-sunken)] text-[var(--color-text-primary)] text-sm font-medium outline-none focus:border-[var(--color-accent)] transition-colors"
+          />
+        </Card>
+
+        {error && (
+          <div className="p-3.5 rounded-2xl text-xs font-semibold bg-[var(--color-owe-light)] text-[var(--color-owe)]">
+            {error}
           </div>
         )}
-      </div>
 
-      {/* Description */}
-      <div>
-        <label className="form-label">What was it for?</label>
-        <input
-          type="text"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          required
-          className="input-field"
-          placeholder="Lunch, Taxi fare, Grocery share..."
-        />
-      </div>
-
-      {/* Amount */}
-      <div>
-        <label className="form-label">Amount</label>
-        <div className="relative">
-          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary font-medium">₹</span>
-          <input
-            type="number"
-            min="1"
-            step="1"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            required
-            className="input-field pl-8 text-lg font-semibold"
-            placeholder="0"
-          />
-        </div>
-        <p className="text-xs text-text-tertiary mt-1">Whole rupees only — no decimals</p>
-      </div>
-
-      {/* Error */}
-      {error && (
-        <div className="px-4 py-3 rounded-xl bg-error/10 text-error text-sm">
-          {error}
-        </div>
-      )}
-
-      {/* Actions */}
-      <div className="flex gap-3 pt-2">
-        <button
+        <Button
           type="submit"
-          disabled={createDebt.isPending || !selectedUser}
-          className="btn-primary flex-1"
+          variant="primary"
+          fullWidth
+          size="lg"
+          disabled={createDebt.isPending || !selectedUser || !amount}
+          loading={createDebt.isPending}
         >
-          {createDebt.isPending ? (
-            <span className="flex items-center justify-center gap-2">
-              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              Creating...
-            </span>
-          ) : (
-            'Record Debt'
-          )}
-        </button>
-        {onCancel && (
-          <button type="button" onClick={onCancel} className="btn-secondary">
-            Cancel
-          </button>
-        )}
-      </div>
-    </form>
+          Record Direct Debt
+        </Button>
+      </form>
+    </div>
   );
 }

@@ -1,6 +1,10 @@
 import { useWishlist, useClaimWishlistItem } from '../hooks/useWishlist';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { formatMoney } from '@/domain/entities/Money';
+import { Card } from '@/ui/primitives/Card';
+import { Button } from '@/ui/primitives/Button';
+import { EmptyState } from '@/ui/primitives/EmptyState';
+import { Skeleton } from '@/ui/primitives/Skeleton';
 
 interface Props {
   groupId?: string;
@@ -15,7 +19,7 @@ export function WishlistList({ groupId }: Props) {
     return (
       <div className="space-y-3">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="skeleton-card h-24" />
+          <Skeleton key={i} height={72} />
         ))}
       </div>
     );
@@ -23,19 +27,11 @@ export function WishlistList({ groupId }: Props) {
 
   if (!items || items.length === 0) {
     return (
-      <div className="card p-8 text-center">
-        <div className="w-16 h-16 rounded-full bg-surface flex items-center justify-center mx-auto mb-4">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-text-tertiary">
-            <path d="M20 12v10H4V12" />
-            <path d="M2 7h20v5H2z" />
-            <path d="M12 22V7" />
-            <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z" />
-            <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z" />
-          </svg>
-        </div>
-        <p className="font-medium text-text-primary mb-1">No wishlist items</p>
-        <p className="text-sm text-text-secondary">Add something you'd like the group to get</p>
-      </div>
+      <EmptyState
+        emoji="🎁"
+        title="No wishlist items"
+        description="Add items you or the group would like to purchase together."
+      />
     );
   }
 
@@ -44,8 +40,8 @@ export function WishlistList({ groupId }: Props) {
   };
 
   return (
-    <div className="card overflow-hidden">
-      {items.map((item, index) => {
+    <Card padded={false} className="divide-y divide-[var(--color-border-light)] overflow-hidden">
+      {items.map((item) => {
         const isOwn = item.userId === user?.id;
         const isClaimed = item.claimedBy !== null;
         const claimedByMe = item.claimedBy === user?.id;
@@ -53,54 +49,47 @@ export function WishlistList({ groupId }: Props) {
         return (
           <div
             key={item.id}
-            className={`p-4 transition-colors ${
-              index < items.length - 1 ? 'border-b border-border/50' : ''
-            } ${isClaimed ? 'opacity-70' : ''}`}
+            className="p-4 flex items-center justify-between gap-3 hover:bg-[var(--color-surface-sunken)] transition-colors"
           >
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0 flex-1">
-                <p className="font-medium text-text-primary">{item.title}</p>
-                {item.description && (
-                  <p className="text-sm text-text-secondary mt-0.5">{item.description}</p>
-                )}
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2">
+                <h4 className="font-semibold text-sm text-[var(--color-text-primary)] truncate">
+                  {item.title}
+                </h4>
                 {item.amount && (
-                  <p className="text-sm font-medium text-primary mt-1">
+                  <span className="text-xs font-bold text-amount text-[var(--color-accent)]">
                     {formatMoney(item.amount)}
-                  </p>
+                  </span>
                 )}
-                <p className="text-xs text-text-tertiary mt-1.5">
-                  Added {new Date(item.createdAt).toLocaleDateString()}
-                </p>
               </div>
+              {item.description && (
+                <p className="text-xs text-[var(--color-text-secondary)] truncate mt-0.5">
+                  {item.description}
+                </p>
+              )}
+            </div>
 
-              {!isOwn && !isClaimed && (
-                <button
+            <div className="flex items-center gap-2 flex-shrink-0">
+              {isClaimed ? (
+                <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-[var(--color-owed-light)] text-[var(--color-owed)]">
+                  {claimedByMe ? 'Claimed by you' : 'Claimed'}
+                </span>
+              ) : !isOwn ? (
+                <Button
+                  variant="primary"
+                  size="sm"
                   onClick={() => handleClaim(item.id)}
                   disabled={claimItem.isPending}
-                  className="btn-secondary text-sm px-3 py-1.5 flex-shrink-0"
                 >
                   Claim
-                </button>
-              )}
-
-              {isClaimed && (
-                <div className="flex items-center gap-1.5 text-sm text-text-secondary flex-shrink-0">
-                  {claimedByMe ? (
-                    <>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-success">
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                      <span className="text-success font-medium">Claimed</span>
-                    </>
-                  ) : (
-                    <span>Gifted</span>
-                  )}
-                </div>
+                </Button>
+              ) : (
+                <span className="text-xs text-[var(--color-text-tertiary)]">Added by you</span>
               )}
             </div>
           </div>
         );
       })}
-    </div>
+    </Card>
   );
 }
