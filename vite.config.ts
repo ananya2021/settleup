@@ -12,9 +12,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg'],
       manifest: {
-        name: 'Split Pay',
-        short_name: 'SplitPay',
-        description: 'Free personal expense sharing',
+        name: 'Splitwise',
+        short_name: 'Splitwise',
+        description: 'Personal expense sharing',
         theme_color: '#6366f1',
         background_color: '#ffffff',
         display: 'standalone',
