@@ -50,8 +50,8 @@ export function InviteMembersModal({ groupId, groupName, onClose }: InviteMember
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `Join ${groupName} on SplitPay`,
-          text: `Hey! Join my group "${groupName}" on SplitPay to easily split expenses:`,
+          title: `Join ${groupName} on Splitwise`,
+          text: `Hey! Join my group "${groupName}" on Splitwise to easily split expenses:`,
           url: invitationUrl,
         });
       } catch (err) {

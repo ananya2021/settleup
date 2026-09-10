@@ -47,7 +47,7 @@ export function LoginForm() {
             </svg>
           </div>
           <h1 className="font-display text-3xl font-bold tracking-tight text-[var(--color-text-primary)]">
-            SplitPay
+            Splitwise
           </h1>
           <p className="text-xs sm:text-sm text-[var(--color-text-secondary)]">
             Sharing expenses made calm and effortless

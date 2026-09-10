@@ -80,7 +80,7 @@ export function AppShell() {
               </svg>
             </div>
             <span className="font-display font-bold text-lg tracking-tight text-[var(--color-text-primary)]">
-              SplitPay
+              Splitwise
             </span>
           </NavLink>
 

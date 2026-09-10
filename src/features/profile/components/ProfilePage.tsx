@@ -271,7 +271,7 @@ export function ProfilePage() {
                 </svg>
               }
             >
-              Sign Out of SplitPay
+              Sign Out of Splitwise
             </Button>
           </div>
         </div>

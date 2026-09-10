@@ -60,7 +60,7 @@ export function SignupForm() {
             Create Account
           </h1>
           <p className="text-xs sm:text-sm text-[var(--color-text-secondary)]">
-            Join SplitPay to share expenses with your friends
+            Join Splitwise to share expenses with your friends
           </p>
         </div>
 
