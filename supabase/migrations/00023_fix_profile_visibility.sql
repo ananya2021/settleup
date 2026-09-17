@@ -64,6 +64,9 @@ GRANT EXECUTE ON FUNCTION public.shares_group_with(UUID, UUID) TO authenticated;
 -- policy is left intact. RLS combines multiple SELECT policies
 -- with OR logic, so a row is visible if ANY policy allows it.
 -- ----------------------------------------------------------------
+DROP POLICY IF EXISTS "Group co-members can view each other's profiles"
+  ON public.profiles;
+
 CREATE POLICY "Group co-members can view each other's profiles"
   ON public.profiles
   FOR SELECT

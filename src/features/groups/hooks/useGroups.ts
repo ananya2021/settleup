@@ -78,7 +78,7 @@ export function useGroupMembers(groupId: string) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('group_members')
-        .select('*, profiles!inner(name, email)')
+        .select('*, profiles(name, email)')
         .eq('group_id', groupId);
 
       if (error) throw error;

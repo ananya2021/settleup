@@ -65,7 +65,7 @@ export function CreateExpenseForm({ onSuccess, onCancel }: Props) {
 
   const memberList = useMemo(() => {
     if (!rawMembers) return [];
-    return rawMembers.map((m: { user_id: string; profiles: { name: string; email: string } }) => ({
+    return rawMembers.map((m: { user_id: string; profiles: { name: string; email: string } | null }) => ({
       userId: m.user_id,
       name: m.user_id === user?.id ? 'You' : m.profiles?.name || m.profiles?.email?.split('@')[0] || 'Member',
       email: m.profiles?.email ?? '',
