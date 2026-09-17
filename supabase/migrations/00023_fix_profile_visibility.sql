@@ -76,12 +76,43 @@ CREATE POLICY "Group co-members can view each other's profiles"
 
 
 -- ----------------------------------------------------------------
--- Step 3: Also ensure that the search_users() function (migration
--- 00019) can return results for users who are group co-members.
--- It is already SECURITY DEFINER so it bypasses RLS internally,
--- but we document the intent here for clarity.
--- No SQL change needed for search_users.
+-- Step 3: Fix search_users() aggregation ordering
 -- ----------------------------------------------------------------
+CREATE OR REPLACE FUNCTION public.search_users(p_query TEXT)
+RETURNS JSONB AS $$
+BEGIN
+  IF p_query IS NULL OR length(trim(p_query)) < 2 THEN
+    RAISE EXCEPTION 'Search query must be at least 2 characters';
+  END IF;
+
+  RETURN (
+    SELECT COALESCE(
+      jsonb_agg(
+        jsonb_build_object(
+          'id', sub.id,
+          'name', sub.name,
+          'email', sub.email
+        )
+      ),
+      '[]'::JSONB
+    )
+    FROM (
+      SELECT p.id, p.name, p.email
+      FROM public.profiles p
+      WHERE p.id != auth.uid()
+        AND (
+          p.email ILIKE trim(p_query) || '%'
+          OR p.name ILIKE '%' || trim(p_query) || '%'
+        )
+      ORDER BY p.name ASC
+      LIMIT 10
+    ) sub
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER
+   SET search_path = public, pg_temp;
+
+GRANT EXECUTE ON FUNCTION public.search_users(TEXT) TO authenticated;
 
 
 -- ----------------------------------------------------------------
