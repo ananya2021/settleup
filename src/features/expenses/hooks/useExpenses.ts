@@ -89,7 +89,16 @@ export function useCreateExpense() {
         body: { groupId, description, totalAmount, splitType, splits },
       });
 
-      if (response.error) throw new Error(response.error.message);
+      if (response.error) {
+        let msg = response.error.message;
+        try {
+          const body = await (response.error as any).context?.json?.();
+          if (body?.error) msg = body.error;
+        } catch {
+          // fallback to response.error.message
+        }
+        throw new Error(msg);
+      }
       return response.data;
     },
     onSuccess: () => {
